@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KISHAN MARWADI — Full Stack Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --black:#0a0a0a;
+  --dark:#0f0f0f;
+  --card:#141414;
+  --pink:#ff2d78;
+  --pink-dim:#c0185a;
+  --green:#39ff85;
+  --green-dim:#1a7a3a;
+  --white:#e8e8e8;
+  --grey:#555;
+  --border:#1e1e1e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--black);
+  color:var(--white);
+  font-family:'Share Tech Mono',monospace;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ===== CUSTOM CURSOR ===== */
+#cursor{
+  width:12px;height:12px;
+  background:var(--green);
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9999;
+  image-rendering:pixelated;
+  clip-path:polygon(0 0,100% 0,100% 25%,75% 25%,75% 50%,100% 50%,100% 100%,75% 100%,75% 75%,25% 75%,25% 100%,0 100%,0 75%,25% 75%,25% 25%,0 25%);
+  transition:transform .1s;
+}
+#cursor-trail{pointer-events:none;position:fixed;top:0;left:0;z-index:9998;}
+
+/* ===== WAVE CANVAS ===== */
+#wave-canvas{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;z-index:1;
+  opacity:.18;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--black);}
+::-webkit-scrollbar-thumb{background:var(--pink);border-radius:0;}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,10,.92);
+  border-bottom:2px solid var(--pink);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.5rem;
+  height:56px;
+  backdrop-filter:blur(8px);
+  image-rendering:pixelated;
+}
+.nav-logo{
+  font-family:'Press Start 2P',monospace;
+  font-size:.65rem;
+  color:var(--green);
+  letter-spacing:.05em;
+  text-shadow:0 0 12px var(--green);
+  cursor:none;
+}
+.nav-logo span{color:var(--pink);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{
+  font-family:'Press Start 2P',monospace;
+  font-size:.45rem;
+  color:var(--grey);
+  text-decoration:none;
+  letter-spacing:.1em;
+  transition:color .2s;
+  cursor:none;
+  position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;
+  width:0;height:2px;background:var(--pink);
+  transition:width .3s;
+}
+.nav-links a:hover{color:var(--green);}
+.nav-links a:hover::after{width:100%;}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.nav-badge{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  border:1px solid var(--green);color:var(--green);
+  padding:.3rem .6rem;letter-spacing:.05em;
+  animation:blink 1.5s step-end infinite;
+}
+@keyframes blink{50%{opacity:.4;}}
+.nav-theme{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  border:1px solid var(--grey);color:var(--grey);
+  padding:.3rem .6rem;cursor:none;
+  transition:all .2s;
+}
+.nav-theme:hover{border-color:var(--pink);color:var(--pink);}
+
+/* ===== PIXEL DIVIDER ===== */
+.px-divider{
+  height:2px;
+  background:repeating-linear-gradient(90deg,var(--pink) 0 8px,transparent 8px 16px);
+  margin:0;
+}
+
+/* ===== SECTIONS ===== */
+section{position:relative;z-index:2;padding:7rem 2.5rem 5rem;}
+.section-label{
+  font-family:'Press Start 2P',monospace;
+  font-size:.5rem;color:var(--grey);
+  letter-spacing:.3em;margin-bottom:.5rem;
+  display:flex;align-items:center;gap:.8rem;
+}
+.section-label::before{content:'';width:24px;height:2px;background:var(--pink);}
+.section-title{
+  font-family:'Press Start 2P',monospace;
+  font-size:1.3rem;
+  color:var(--white);
+  letter-spacing:.05em;
+  margin-bottom:.25rem;
+  text-shadow:0 0 20px var(--pink);
+}
+.section-jp{
+  font-size:.6rem;color:var(--grey);
+  font-family:'Share Tech Mono',monospace;
+  margin-bottom:3rem;
+}
+
+/* ===== HERO ===== */
+#hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:start;
+  gap:3rem;
+  padding-top:7rem;
+  overflow:hidden;
+}
+.hero-left{}
+.hero-chapter{
+  font-family:'Press Start 2P',monospace;
+  font-size:.45rem;color:var(--grey);
+  letter-spacing:.2em;margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.hero-chapter::before{content:'';width:20px;height:2px;background:var(--pink);}
+.hero-name{
+  font-family:'Press Start 2P',monospace;
+  font-size:2.5rem;line-height:1.2;
+  margin-bottom:.5rem;
+  background:linear-gradient(135deg,var(--green),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 20px rgba(57,255,133,.4));
+  letter-spacing:.02em;
+}
+.hero-role{
+  font-family:'Press Start 2P',monospace;
+  font-size:.7rem;color:var(--pink);
+  letter-spacing:.05em;line-height:1.8;
+  margin-bottom:1.5rem;
+}
+.hero-desc{
+  border-left:3px solid var(--pink);
+  padding-left:1.2rem;
+  color:#aaa;font-size:.85rem;
+  line-height:1.8;margin-bottom:2rem;
+  max-width:480px;
+}
+.hero-desc strong{color:var(--green);}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-primary{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  background:var(--pink);color:#fff;
+  padding:.8rem 1.4rem;border:none;
+  cursor:none;letter-spacing:.05em;
+  position:relative;overflow:hidden;
+  transition:all .25s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.btn-primary:hover{background:var(--pink-dim);transform:translateY(-2px);box-shadow:0 0 20px var(--pink);}
+.btn-secondary{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  background:transparent;color:var(--green);
+  padding:.8rem 1.4rem;border:2px solid var(--green);
+  cursor:none;letter-spacing:.05em;
+  transition:all .25s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.btn-secondary:hover{background:var(--green);color:var(--black);transform:translateY(-2px);box-shadow:0 0 20px var(--green);}
+
+/* ===== TERMINAL ===== */
+.hero-right{display:flex;flex-direction:column;gap:1.5rem;}
+.terminal{
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  border-radius:0;
+  font-family:'Share Tech Mono',monospace;
+  overflow:hidden;
+  box-shadow:0 0 30px rgba(57,255,133,.08);
+}
+.terminal-header{
+  background:#161616;
+  padding:.6rem 1rem;
+  display:flex;align-items:center;gap:.6rem;
+  border-bottom:1px solid var(--border);
+}
+.t-dot{width:10px;height:10px;border-radius:0;}
+.t-dot.r{background:#ff2d78;} .t-dot.y{background:#ffd700;} .t-dot.g{background:#39ff85;}
+.t-title{font-family:'Press Start 2P',monospace;font-size:.4rem;color:var(--grey);margin-left:.5rem;}
+.terminal-body{padding:1.2rem;font-size:.8rem;line-height:2;}
+.t-prompt{color:var(--pink);}
+.t-cmd{color:var(--white);}
+.t-out{color:var(--green);padding-left:.5rem;}
+.t-cursor{
+  display:inline-block;width:8px;height:14px;
+  background:var(--green);
+  animation:blink 1s step-end infinite;
+  vertical-align:middle;margin-left:2px;
+}
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+}
+.stat-box{
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  padding:1.2rem;text-align:center;
+  position:relative;overflow:hidden;
+  transition:all .3s;
+  cursor:none;
+}
+.stat-box::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 50%,rgba(57,255,133,.03));
+}
+.stat-box:hover{border-color:var(--green);box-shadow:0 0 20px rgba(57,255,133,.15);}
+.stat-num{
+  font-family:'Press Start 2P',monospace;
+  font-size:1.3rem;color:var(--green);
+  display:block;margin-bottom:.4rem;
+}
+.stat-label{font-size:.55rem;color:var(--grey);letter-spacing:.15em;}
+
+/* ===== MINECRAFT CHARACTER ===== */
+.mc-stage{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  min-height:220px;
+}
+
+/* Pixel Steve built entirely in CSS */
+.mc-char{
+  position:relative;
+  width:80px;
+  image-rendering:pixelated;
+  animation:mc-idle 0.8s steps(2) infinite;
+  filter:drop-shadow(0 8px 24px rgba(57,255,133,.5));
+}
+@keyframes mc-idle{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-4px);}
+}
+
+.mc-char .head{
+  width:48px;height:48px;
+  margin:0 auto;
+  background:
+    /* Hair top */
+    linear-gradient(var(--black) 0 6px, transparent 6px),
+    /* Skin base */
+    #c68642;
+  position:relative;
+  box-shadow:
+    /* eyes */
+    -12px 12px 0 4px #2b1d0e,
+    12px 12px 0 4px #2b1d0e,
+    /* nose */
+    0px 20px 0 4px #a0522d,
+    /* mouth */
+    -8px 28px 0 3px #5c3317,
+    0px 28px 0 3px #5c3317,
+    8px 28px 0 3px #5c3317,
+    /* hair */
+    -24px -6px 0 6px var(--black),
+    -12px -6px 0 6px var(--black),
+    0 -6px 0 6px var(--black),
+    12px -6px 0 6px var(--black),
+    24px -6px 0 6px var(--black);
+}
+.mc-char .head-glow{
+  position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;
+  border:2px solid var(--green);
+  animation:head-glow 2s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes head-glow{
+  0%,100%{opacity:.3;box-shadow:0 0 8px var(--green);}
+  50%{opacity:.8;box-shadow:0 0 18px var(--green);}
+}
+.mc-char .body{
+  width:48px;height:48px;
+  margin:0 auto;
+  background:
+    /* shirt */
+    repeating-linear-gradient(
+      90deg,
+      #2563eb 0 16px,
+      #1d4ed8 16px 32px
+    );
+  position:relative;
+}
+.mc-char .arms{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:48px;
+}
+.mc-char .arm{
+  position:absolute;
+  width:16px;height:44px;
+  background:#c68642;
+  top:2px;
+}
+.mc-char .arm.left{
+  left:-18px;
+  transform-origin:top center;
+  animation:arm-swing-l 0.8s ease-in-out infinite;
+}
+.mc-char .arm.right{
+  right:-18px;
+  transform-origin:top center;
+  animation:arm-swing-r 0.8s ease-in-out infinite;
+}
+@keyframes arm-swing-l{
+  0%,100%{transform:rotate(-20deg);}
+  50%{transform:rotate(20deg);}
+}
+@keyframes arm-swing-r{
+  0%,100%{transform:rotate(20deg);}
+  50%{transform:rotate(-20deg);}
+}
+.mc-char .legs{
+  display:flex;
+  justify-content:center;
+  gap:4px;
+}
+.mc-char .leg{
+  width:20px;height:44px;
+  background:#1a3a6b;
+}
+.mc-char .leg.left{
+  transform-origin:top center;
+  animation:leg-swing-l 0.8s ease-in-out infinite;
+}
+.mc-char .leg.right{
+  transform-origin:top center;
+  animation:leg-swing-r 0.8s ease-in-out infinite;
+}
+@keyframes leg-swing-l{
+  0%,100%{transform:rotate(-15deg);}
+  50%{transform:rotate(15deg);}
+}
+@keyframes leg-swing-r{
+  0%,100%{transform:rotate(15deg);}
+  50%{transform:rotate(-15deg);}
+}
+
+/* Tool in hand */
+.mc-char .tool{
+  position:absolute;
+  bottom:44px;right:-40px;
+  width:12px;height:40px;
+  background:linear-gradient(180deg,#aaa 0 10px,#8B4513 10px);
+  transform-origin:top center;
+  animation:tool-swing 0.8s ease-in-out infinite;
+  image-rendering:pixelated;
+}
+@keyframes tool-swing{
+  0%{transform:rotate(-30deg);}
+  50%{transform:rotate(30deg);}
+  100%{transform:rotate(-30deg);}
+}
+
+/* Particles floating around character */
+.mc-particle{
+  position:absolute;
+  width:6px;height:6px;
+  background:var(--green);
+  animation:float-particle 2s ease-in-out infinite;
+  image-rendering:pixelated;
+}
+.mc-particle:nth-child(1){top:10%;left:10%;animation-delay:0s;background:var(--pink);}
+.mc-particle:nth-child(2){top:20%;right:15%;animation-delay:.3s;}
+.mc-particle:nth-child(3){top:60%;left:5%;animation-delay:.6s;background:var(--pink);}
+.mc-particle:nth-child(4){top:40%;right:5%;animation-delay:.9s;}
+.mc-particle:nth-child(5){top:75%;right:20%;animation-delay:1.2s;background:var(--pink);}
+@keyframes float-particle{
+  0%,100%{transform:translateY(0) scale(1);opacity:.8;}
+  50%{transform:translateY(-12px) scale(1.5);opacity:.3;}
+}
+
+/* Ground */
+.mc-ground{
+  position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  display:flex;gap:2px;
+}
+.mc-block{
+  width:32px;height:16px;
+  image-rendering:pixelated;
+  position:relative;
+  transition:transform .15s;
+  cursor:none;
+}
+.mc-block:hover{transform:translateY(-4px);}
+.mc-block::before{
+  content:'';position:absolute;inset:0;
+  border:1px solid rgba(0,0,0,.4);
+}
+.mc-block.grass{background:linear-gradient(180deg,#4a7c2f 0 6px,#8B6914 6px);}
+.mc-block.dirt{background:#8B6914;}
+.mc-block.stone{background:#888;}
+.mc-block.diamond{background:#00e5ff;}
+
+/* Status badge */
+.status-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  color:var(--green);margin-top:.8rem;
+}
+.status-dot{
+  width:8px;height:8px;
+  background:var(--green);
+  animation:blink 1s step-end infinite;
+}
+
+/* ===== ABOUT ===== */
+#about{background:var(--dark);}
+.about-grid{display:grid;grid-template-columns:300px 1fr;gap:4rem;align-items:start;}
+.mc-avatar-box{
+  border:2px solid var(--green);
+  padding:1.5rem;
+  background:#0d0d0d;
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+}
+.mc-avatar-box::before{
+  content:'// ENTITY.RENDER';
+  position:absolute;top:-12px;left:10px;
+  font-family:'Press Start 2P',monospace;font-size:.35rem;
+  color:var(--grey);background:var(--dark);padding:0 .5rem;
+}
+.lang-badges{
+  display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;
+}
+.lang-badge{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  padding:.4rem .7rem;cursor:none;
+  transition:all .2s;
+}
+.lang-badge.py{border:2px solid var(--green);color:var(--green);}
+.lang-badge.php{border:2px solid var(--pink);color:var(--pink);}
+.lang-badge.sql{border:2px solid #ffd700;color:#ffd700;}
+.lang-badge.js{border:2px solid #f7df1e;color:#f7df1e;}
+.lang-badge:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 0 12px currentColor;}
+.about-text{font-size:.85rem;line-height:2;}
+.about-intro{
+  font-family:'Press Start 2P',monospace;
+  font-size:.65rem;color:var(--green);
+  margin-bottom:1.5rem;
+}
+.about-intro span{color:var(--pink);}
+.about-body p{color:#aaa;margin-bottom:1rem;line-height:1.9;}
+.about-body strong{color:var(--green);}
+.about-body a{color:var(--pink);text-decoration:none;}
+.stack-chips{
+  display:flex;flex-wrap:wrap;gap:.5rem;
+  margin-top:2rem;
+}
+.chip{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  border:1px solid var(--border);
+  color:var(--grey);padding:.4rem .7rem;
+  cursor:none;transition:all .2s;
+}
+.chip:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px);}
+
+/* pipeline marquee */
+.pipeline{
+  overflow:hidden;border-top:1px solid var(--border);
+  padding:.7rem 0;margin-top:1.5rem;
+}
+.pipeline-inner{
+  display:flex;gap:2rem;
+  animation:marquee 12s linear infinite;
+  white-space:nowrap;
+}
+.pipeline-item{
+  font-family:'Press Start 2P',monospace;font-size:.35rem;
+  color:var(--grey);display:flex;align-items:center;gap:.5rem;
+}
+.pipeline-item::after{content:'→';color:var(--pink);}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ===== TECH STACK ===== */
+#stack{background:var(--black);}
+.marquee-wrap{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.8rem 0;margin-bottom:3rem;}
+.marquee-inner{display:flex;gap:3rem;animation:marquee 18s linear infinite;white-space:nowrap;}
+.marquee-item{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  color:var(--grey);display:flex;align-items:center;gap:.5rem;
+}
+.marquee-item::after{content:'◆';color:var(--pink);}
+
+.tech-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:1rem;
+}
+.tech-card{
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  padding:1.2rem;
+  text-align:center;
+  cursor:none;
+  transition:all .3s;
+  position:relative;overflow:hidden;
+}
+.tech-card::before{
+  content:'';position:absolute;
+  top:-100%;left:0;right:0;height:100%;
+  background:linear-gradient(180deg,var(--green) 0,transparent 100%);
+  opacity:.06;transition:top .3s;
+}
+.tech-card:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 8px 30px rgba(57,255,133,.15);}
+.tech-card:hover::before{top:0;}
+.tech-icon{font-size:1.8rem;display:block;margin-bottom:.8rem;}
+.tech-name{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  color:var(--white);display:block;margin-bottom:.3rem;
+}
+.tech-type{font-size:.6rem;color:var(--grey);}
+
+/* ===== PROJECTS ===== */
+#projects{background:var(--dark);}
+.projects-list{display:flex;flex-direction:column;gap:2.5rem;}
+.proj-card{
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  padding:2rem;
+  position:relative;
+  overflow:hidden;
+  cursor:none;
+  transition:all .3s;
+}
+.proj-card::before{
+  content:'';position:absolute;
+  left:0;top:0;bottom:0;
+  width:3px;background:var(--pink);
+  transition:width .3s;
+}
+.proj-card:hover{border-color:var(--pink);transform:translateX(4px);}
+.proj-card:hover::before{width:5px;box-shadow:0 0 12px var(--pink);}
+.proj-num{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  color:var(--grey);margin-bottom:.3rem;
+}
+.proj-category{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  color:var(--green);letter-spacing:.15em;margin-bottom:.3rem;
+}
+.proj-name{
+  font-family:'Press Start 2P',monospace;
+  font-size:1rem;color:var(--white);
+  margin-bottom:.3rem;letter-spacing:.05em;
+}
+.proj-tagline{
+  font-size:.7rem;color:var(--pink);
+  margin-bottom:1rem;font-style:italic;
+}
+.proj-desc{color:#aaa;font-size:.82rem;line-height:1.9;margin-bottom:1.2rem;}
+.proj-desc strong{color:var(--green);}
+.proj-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
+.proj-tag{
+  font-family:'Press Start 2P',monospace;font-size:.35rem;
+  border:1px solid var(--border);color:var(--grey);
+  padding:.3rem .6rem;transition:all .2s;
+}
+.proj-tag:hover{border-color:var(--green);color:var(--green);}
+.proj-links{display:flex;gap:1rem;}
+.proj-link{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  color:var(--green);text-decoration:none;
+  border:1px solid var(--green);padding:.5rem 1rem;
+  transition:all .2s;cursor:none;
+}
+.proj-link:hover{background:var(--green);color:var(--black);}
+.proj-link.live{color:var(--pink);border-color:var(--pink);}
+.proj-link.live:hover{background:var(--pink);color:#fff;}
+
+/* ===== EXPERIENCE ===== */
+#experience{background:var(--black);}
+.exp-timeline{position:relative;padding-left:2rem;}
+.exp-timeline::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:2px;background:repeating-linear-gradient(180deg,var(--pink) 0 8px,transparent 8px 16px);
+}
+.exp-item{
+  position:relative;
+  padding:2rem;
+  background:#0d0d0d;
+  border:1px solid var(--border);
+  margin-bottom:2rem;
+  transition:all .3s;
+  cursor:none;
+}
+.exp-item::before{
+  content:'';position:absolute;
+  left:-2.5rem;top:2rem;
+  width:10px;height:10px;
+  background:var(--pink);
+  box-shadow:0 0 12px var(--pink);
+}
+.exp-item:hover{border-color:var(--green);box-shadow:0 0 20px rgba(57,255,133,.1);}
+.exp-role{
+  font-family:'Press Start 2P',monospace;font-size:.65rem;
+  color:var(--white);margin-bottom:.3rem;
+}
+.exp-company{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  color:var(--pink);margin-bottom:.3rem;
+}
+.exp-period{font-size:.7rem;color:var(--grey);margin-bottom:1rem;}
+.exp-bullets{list-style:none;padding:0;}
+.exp-bullets li{
+  color:#aaa;font-size:.82rem;
+  line-height:1.9;padding-left:1.2rem;
+  position:relative;margin-bottom:.5rem;
+}
+.exp-bullets li::before{content:'▸';position:absolute;left:0;color:var(--green);}
+
+/* Certifications */
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:2rem;}
+.cert-card{
+  background:#0d0d0d;border:1px solid var(--border);
+  padding:1.2rem;cursor:none;transition:all .3s;
+}
+.cert-card:hover{border-color:var(--pink);transform:translateY(-3px);}
+.cert-platform{
+  font-family:'Press Start 2P',monospace;font-size:.4rem;
+  color:var(--green);margin-bottom:.5rem;
+}
+.cert-name{font-size:.75rem;color:var(--white);}
+
+/* ===== CONTACT ===== */
+#contact{background:var(--dark);}
+.contact-wrap{
+  max-width:700px;margin:0 auto;text-align:center;
+}
+.contact-headline{
+  font-family:'Press Start 2P',monospace;
+  font-size:.7rem;color:var(--grey);
+  letter-spacing:.2em;margin-bottom:1rem;
+}
+.contact-email{
+  font-family:'Press Start 2P',monospace;
+  font-size:1rem;
+  background:linear-gradient(135deg,var(--green),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  display:block;margin-bottom:2.5rem;
+  text-decoration:none;
+  cursor:none;
+}
+.contact-links{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;}
+.contact-link{
+  font-family:'Press Start 2P',monospace;font-size:.5rem;
+  color:var(--grey);text-decoration:none;
+  border:1px solid var(--border);
+  padding:.8rem 1.2rem;
+  display:flex;align-items:center;gap:.5rem;
+  transition:all .3s;cursor:none;
+}
+.contact-link:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 20px rgba(57,255,133,.2);}
+.contact-link .cl-icon{font-size:1rem;}
+
+/* ===== FOOTER ===== */
+footer{
+  background:#080808;
+  border-top:1px solid var(--border);
+  padding:1.5rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.7rem;color:var(--grey);
+  position:relative;z-index:2;
+}
+footer span{font-family:'Press Start 2P',monospace;font-size:.35rem;}
+
+/* ===== SCROLL ANIMATIONS ===== */
+.reveal{
+  opacity:0;
+  transform:translateY(30px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-left{
+  opacity:0;transform:translateX(-40px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal-left.visible{opacity:1;transform:translateX(0);}
+.reveal-right{
+  opacity:0;transform:translateX(40px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal-right.visible{opacity:1;transform:translateX(0);}
+.reveal-scale{
+  opacity:0;transform:scale(.92);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal-scale.visible{opacity:1;transform:scale(1);}
+
+/* Stagger children */
+.stagger > *:nth-child(1){transition-delay:.05s;}
+.stagger > *:nth-child(2){transition-delay:.15s;}
+.stagger > *:nth-child(3){transition-delay:.25s;}
+.stagger > *:nth-child(4){transition-delay:.35s;}
+.stagger > *:nth-child(5){transition-delay:.45s;}
+.stagger > *:nth-child(6){transition-delay:.55s;}
+.stagger > *:nth-child(7){transition-delay:.65s;}
+.stagger > *:nth-child(8){transition-delay:.75s;}
+
+/* ===== GLITCH EFFECT ===== */
+.glitch{
+  position:relative;
+  display:inline-block;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;top:0;left:0;width:100%;height:100%;
+}
+.glitch::before{
+  left:2px;
+  background:linear-gradient(135deg,var(--green),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:glitch-1 3s infinite;
+  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+}
+.glitch::after{
+  left:-2px;
+  background:linear-gradient(135deg,var(--pink),var(--green));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:glitch-2 3s infinite;
+  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
+}
+@keyframes glitch-1{
+  0%,94%,100%{transform:translateX(0);}
+  95%{transform:translateX(-3px);}
+  97%{transform:translateX(3px);}
+}
+@keyframes glitch-2{
+  0%,94%,100%{transform:translateX(0);}
+  96%{transform:translateX(3px);}
+  98%{transform:translateX(-3px);}
+}
+
+/* ===== CLICK RIPPLE ===== */
+.ripple{
+  position:fixed;
+  border-radius:0;
+  width:12px;height:12px;
+  background:transparent;
+  border:2px solid var(--green);
+  pointer-events:none;z-index:9990;
+  animation:ripple-out .6s ease forwards;
+  image-rendering:pixelated;
+}
+@keyframes ripple-out{
+  to{width:60px;height:60px;margin-top:-24px;margin-left:-24px;opacity:0;border-color:var(--pink);}
+}
+
+/* ===== SCANLINES OVERLAY ===== */
+#scanlines{
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.12) 2px,
+    rgba(0,0,0,.12) 4px
+  );
+  pointer-events:none;z-index:5;
+  opacity:.4;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  #hero{grid-template-columns:1fr;padding-top:8rem;}
+  .hero-name{font-size:1.6rem;}
+  .about-grid{grid-template-columns:1fr;}
+  .mc-avatar-box{width:200px;margin:0 auto;}
+}
+@media(max-width:600px){
+  nav{padding:0 1rem;}
+  .nav-links{display:none;}
+  section{padding:5rem 1.2rem 3rem;}
+  .hero-name{font-size:1.1rem;}
+  .stats-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+
+<!-- Wave canvas -->
+<canvas id="wave-canvas"></canvas>
+
+<!-- Scanlines -->
+<div id="scanlines"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KISHAN<span>.</span>M</div>
+  <ul class="nav-links">
+    <li><a href="#about">ABOUT</a></li>
+    <li><a href="#stack">STACK</a></li>
+    <li><a href="#projects">PROJECTS</a></li>
+    <li><a href="#experience">EXPERIENCE</a></li>
+    <li><a href="#contact">CONTACT</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-theme" onclick="cyclePalette()">⌘ THEME</div>
+    <div class="nav-badge">● AVAILABLE</div>
+  </div>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<section id="hero">
+  <div class="hero-left reveal-left">
+    <div class="hero-chapter">CHAPTER 01 — PROTAGONIST</div>
+    <h1 class="hero-name glitch" data-text="KISHAN MARWADI">KISHAN MARWADI</h1>
+    <div class="hero-role">FULL STACK DEVELOPER.<br>ALWAYS LEARNING.</div>
+    <p class="hero-desc">
+      Builds complete web applications from database to UI — <strong>PHP, MySQL &amp; Tailwind CSS</strong> on the backend, <strong>React, JavaScript &amp; .NET</strong> on the front. Clean architecture, solid logic, no shortcuts.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})">VIEW PROJECTS</button>
+      <a href="mailto:kishan.18mm19@gmail.com" class="btn-secondary">HIRE ME</a>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      STATUS: ONLINE — Nadiad, Gujarat
+    </div>
+  </div>
+
+  <div class="hero-right reveal-right">
+    <!-- Terminal -->
+    <div class="terminal reveal">
+      <div class="terminal-header">
+        <div class="t-dot r"></div>
+        <div class="t-dot y"></div>
+        <div class="t-dot g"></div>
+        <span class="t-title">~/dev — zsh</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">➜ ~</span> <span class="t-cmd">whoami</span></div>
+        <div class="t-out">kishan — full stack developer</div>
+        <div><span class="t-prompt">➜ ~</span> <span class="t-cmd">cat skills.txt</span></div>
+        <div class="t-out">PHP · MySQL · JavaScript · React</div>
+        <div class="t-out">HTML5 · CSS3 · Tailwind · Git</div>
+        <div class="t-out">Python · SQL · AJAX · REST APIs</div>
+        <div><span class="t-prompt">➜ ~</span> <span class="t-cmd">./start_day.sh</span></div>
+        <div class="t-out" id="typing-line">Building something great...</div>
+        <div><span class="t-prompt">➜ ~</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row stagger reveal">
+      <div class="stat-box">
+        <span class="stat-num">1+</span>
+        <span class="stat-label">YEARS EXP</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">4+</span>
+        <span class="stat-label">PROJECTS</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">8.2</span>
+        <span class="stat-label">CGPA / 10</span>
+      </div>
+    </div>
+
+    <!-- Minecraft character stage -->
+    <div class="mc-stage reveal">
+      <!-- particles -->
+      <div class="mc-particle"></div>
+      <div class="mc-particle"></div>
+      <div class="mc-particle"></div>
+      <div class="mc-particle"></div>
+      <div class="mc-particle"></div>
+
+      <!-- Character -->
+      <div class="mc-char" id="mcChar">
+        <div class="head">
+          <div class="head-glow"></div>
+        </div>
+        <div class="body">
+          <div class="arms">
+            <div class="arm left"></div>
+            <div class="arm right">
+              <div class="tool"></div>
+            </div>
+          </div>
+        </div>
+        <div class="legs">
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+        </div>
+      </div>
+
+      <!-- Ground blocks -->
+      <div class="mc-ground">
+        <div class="mc-block grass" title="🌿 Grass Block"></div>
+        <div class="mc-block diamond" title="💎 Diamond Block"></div>
+        <div class="mc-block grass" title="🌿 Grass Block"></div>
+        <div class="mc-block stone" title="🪨 Stone Block"></div>
+        <div class="mc-block grass" title="🌿 Grass Block"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="px-divider"></div>
+
+<!-- ======================== ABOUT ======================== -->
+<section id="about">
+  <div class="section-label">01</div>
+  <div class="section-title reveal">ABOUT_ME</div>
+  <div class="section-jp reveal">自己紹介</div>
+
+  <div class="about-grid">
+    <div class="reveal-left">
+      <div class="mc-avatar-box">
+        <!-- Big pixel avatar -->
+        <svg width="180" height="200" viewBox="0 0 180 200" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+          <!-- Head -->
+          <rect x="55" y="20" width="70" height="70" fill="#c68642"/>
+          <!-- Hair -->
+          <rect x="55" y="20" width="70" height="14" fill="#2b1d0e"/>
+          <rect x="55" y="20" width="14" height="28" fill="#2b1d0e"/>
+          <!-- Eyes -->
+          <rect x="70" y="48" width="12" height="12" fill="#2b1d0e"/>
+          <rect x="98" y="48" width="12" height="12" fill="#2b1d0e"/>
+          <!-- Mouth -->
+          <rect x="72" y="72" width="36" height="6" fill="#5c3317"/>
+          <!-- Body -->
+          <rect x="60" y="90" width="60" height="64" fill="#2563eb"/>
+          <rect x="70" y="90" width="10" height="64" fill="#1d4ed8"/>
+          <rect x="100" y="90" width="10" height="64" fill="#1d4ed8"/>
+          <!-- Arms -->
+          <rect x="30" y="90" width="28" height="58" fill="#c68642"/>
+          <rect x="122" y="90" width="28" height="58" fill="#c68642"/>
+          <!-- Legs -->
+          <rect x="62" y="154" width="24" height="46" fill="#1a3a6b"/>
+          <rect x="94" y="154" width="24" height="46" fill="#1a3a6b"/>
+          <!-- Tool (pickaxe) in right hand -->
+          <rect x="150" y="80" width="10" height="50" fill="#8B4513"/>
+          <rect x="140" y="72" width="30" height="14" fill="#888"/>
+          <!-- Glow -->
+          <rect x="55" y="20" width="70" height="70" fill="none" stroke="#39ff85" stroke-width="2" opacity="0.5">
+            <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite"/>
+          </rect>
+        </svg>
+        <div class="status-badge" style="font-size:.35rem;margin-top:.5rem;">
+          <div class="status-dot"></div> STATUS: ONLINE
+        </div>
+        <div class="lang-badges" style="margin-top:1rem;">
+          <div class="lang-badge php">PHP<br><span style="font-size:.3rem;opacity:.7">Primary</span></div>
+          <div class="lang-badge js">JS<br><span style="font-size:.3rem;opacity:.7">Secondary</span></div>
+          <div class="lang-badge sql">SQL<br><span style="font-size:.3rem;opacity:.7">Always</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-text reveal-right">
+      <div class="about-intro">>> Hello, <span>World.</span></div>
+      <div class="about-body">
+        <p>Hey. I'm <strong>Kishan</strong> — a BCA graduate and <strong>Full Stack Developer</strong> with hands-on experience in building production-grade, real-world web applications from scratch, end to end.</p>
+        <p>I work with <strong>PHP, MySQL, and Tailwind CSS</strong> to build structured, scalable web platforms. My final-year capstone project <strong>Samaaroh</strong> — a wedding planning platform — is the best example of my ability to architect a complete system end-to-end.</p>
+        <p>I also write <strong>Python utility libraries</strong>, work with <strong>React and JavaScript</strong>, and understand clean code principles like RBAC, OOP, and secure auth flows. I take the craft seriously — when I'm not building, I'm reading docs or figuring out <a href="#">where the real learning happens</a>.</p>
+      </div>
+      <div style="margin-top:1.5rem;font-family:'Press Start 2P',monospace;font-size:.4rem;color:var(--grey);">// CURRENT STACK</div>
+      <div class="stack-chips stagger">
+        <div class="chip">PHP</div>
+        <div class="chip">MySQL</div>
+        <div class="chip">JavaScript</div>
+        <div class="chip">React</div>
+        <div class="chip">Tailwind CSS</div>
+        <div class="chip">Git</div>
+        <div class="chip">AJAX</div>
+        <div class="chip">Python</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline-inner">
+          <div class="pipeline-item">DESIGN</div>
+          <div class="pipeline-item">BUILD</div>
+          <div class="pipeline-item">TEST</div>
+          <div class="pipeline-item">SHIP</div>
+          <div class="pipeline-item">ITERATE</div>
+          <div class="pipeline-item">DESIGN</div>
+          <div class="pipeline-item">BUILD</div>
+          <div class="pipeline-item">TEST</div>
+          <div class="pipeline-item">SHIP</div>
+          <div class="pipeline-item">ITERATE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="px-divider"></div>
+
+<!-- ======================== STACK ======================== -->
+<section id="stack">
+  <div class="section-label">02</div>
+  <div class="section-title reveal">TECH_STACK</div>
+  <div class="section-jp reveal">技術スタック</div>
+
+  <div class="marquee-wrap">
+    <div class="marquee-inner">
+      <div class="marquee-item">PHP</div>
+      <div class="marquee-item">MYSQL</div>
+      <div class="marquee-item">JAVASCRIPT</div>
+      <div class="marquee-item">REACT</div>
+      <div class="marquee-item">TAILWIND</div>
+      <div class="marquee-item">GIT</div>
+      <div class="marquee-item">PYTHON</div>
+      <div class="marquee-item">SQL</div>
+      <div class="marquee-item">.NET</div>
+      <div class="marquee-item">PHP</div>
+      <div class="marquee-item">MYSQL</div>
+      <div class="marquee-item">JAVASCRIPT</div>
+      <div class="marquee-item">REACT</div>
+      <div class="marquee-item">TAILWIND</div>
+      <div class="marquee-item">GIT</div>
+    </div>
+  </div>
+
+  <div class="tech-grid stagger reveal">
+    <div class="tech-card"><span class="tech-icon">🐘</span><span class="tech-name">PHP</span><span class="tech-type">Primary Language</span></div>
+    <div class="tech-card"><span class="tech-icon">🗄️</span><span class="tech-name">MySQL</span><span class="tech-type">Database</span></div>
+    <div class="tech-card"><span class="tech-icon">🌊</span><span class="tech-name">Tailwind</span><span class="tech-type">CSS Framework</span></div>
+    <div class="tech-card"><span class="tech-icon">⚛️</span><span class="tech-name">React</span><span class="tech-type">Frontend</span></div>
+    <div class="tech-card"><span class="tech-icon">⚡</span><span class="tech-name">JavaScript</span><span class="tech-type">Language</span></div>
+    <div class="tech-card"><span class="tech-icon">🐍</span><span class="tech-name">Python</span><span class="tech-type">Scripting</span></div>
+    <div class="tech-card"><span class="tech-icon">📚</span><span class="tech-name">Git</span><span class="tech-type">Version Control</span></div>
+    <div class="tech-card"><span class="tech-icon">🔗</span><span class="tech-name">REST APIs</span><span class="tech-type">Architecture</span></div>
+    <div class="tech-card"><span class="tech-icon">🔒</span><span class="tech-name">JWT / bcrypt</span><span class="tech-type">Auth & Security</span></div>
+    <div class="tech-card"><span class="tech-icon">🧰</span><span class="tech-name">WAMP/XAMPP</span><span class="tech-type">Dev Environment</span></div>
+    <div class="tech-card"><span class="tech-icon">📦</span><span class="tech-name">Postman</span><span class="tech-type">API Testing</span></div>
+    <div class="tech-card"><span class="tech-icon">🏗️</span><span class="tech-name">OOP / SOLID</span><span class="tech-type">Concepts</span></div>
+    <div class="tech-card"><span class="tech-icon">💜</span><span class="tech-name">.NET</span><span class="tech-type">Framework</span></div>
+  </div>
+</section>
+
+<div class="px-divider"></div>
+
+<!-- ======================== PROJECTS ======================== -->
+<section id="projects">
+  <div class="section-label">03</div>
+  <div class="section-title reveal">PROJECTS</div>
+  <div class="section-jp reveal">プロジェクト</div>
+
+  <div class="projects-list">
+
+    <!-- Project 1 -->
+    <div class="proj-card reveal">
+      <div class="proj-num">#001</div>
+      <div class="proj-category">MATRIMONY PLATFORM</div>
+      <div class="proj-name">SAMAAROH</div>
+      <div class="proj-tagline">Plan, Book, Celebrate</div>
+      <p class="proj-desc">
+        Full-stack B2C wedding planning platform with a normalized 6-table relational database and strict foreign key constraints. Engineered a <strong>12-hour booking workflow</strong> with 30% advance payment acceptance logic and a date-locking system to prevent vendor ghosting and scams. Implemented <strong>Role-Based Access Control (RBAC)</strong> for 3 user types, bcrypt password hashing, and secure session management. Built a secure admin panel with <strong>cryptographically secure token-based invitations</strong> for multi-role user management.
+      </p>
+      <div class="proj-tags">
+        <div class="proj-tag">PHP 7+</div>
+        <div class="proj-tag">MySQL</div>
+        <div class="proj-tag">Tailwind CSS</div>
+        <div class="proj-tag">JavaScript</div>
+        <div class="proj-tag">WAMP Server</div>
+        <div class="proj-tag">RBAC</div>
+        <div class="proj-tag">bcrypt</div>
+      </div>
+      <div class="proj-links">
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link">[ GITHUB ]</a>
+        <a href="http://samaaroh.freehosting.dev/" class="proj-link live">[ LIVE DEMO ]</a>
+      </div>
+    </div>
+
+    <!-- Project 2 -->
+    <div class="proj-card reveal">
+      <div class="proj-num">#002</div>
+      <div class="proj-category">PYTHON UTILITY LIBRARY</div>
+      <div class="proj-name">DATRAX</div>
+      <div class="proj-tagline">Zero-Dependency, Maximum Utility</div>
+      <p class="proj-desc">
+        Engineered a lightweight, zero-dependency Python library implementing <strong>30+ array and string manipulation utilities</strong> from scratch using core algorithms — Bubble Sort, Two-Pointer reversal, Linear Search. Bypassed built-in high-level functions like <strong>sum(), sort(), upper()</strong> to manually implement logic via ord()/chr() manipulation and iterative approaches, demonstrating strong foundational DSA knowledge. Developed comprehensive <strong>unit test suites</strong> using unittest with 100% module reliability. Structured the project for <strong>PyPI distribution</strong> using setuptools, enabling seamless installation and version management.
+      </p>
+      <div class="proj-tags">
+        <div class="proj-tag">Python</div>
+        <div class="proj-tag">Unit Testing</div>
+        <div class="proj-tag">PyPI Packaging</div>
+        <div class="proj-tag">setuptools</div>
+        <div class="proj-tag">DSA</div>
+      </div>
+      <div class="proj-links">
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link">[ GITHUB ]</a>
+        <a href="https://pypi.org/account/login/?next=https%3A%2F%2Fpypi.org%2F" class="proj-link live">[ PyPI ]</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="px-divider"></div>
+
+<!-- ======================== EXPERIENCE ======================== -->
+<section id="experience">
+  <div class="section-label">04</div>
+  <div class="section-title reveal">EXPERIENCE</div>
+  <div class="section-jp reveal">経験</div>
+
+  <div class="exp-timeline">
+    <div class="exp-item reveal">
+      <div class="exp-role"> Full-Stack Developer</div>
+      <div class="exp-company">In-House BCA Capstone Project</div>
+      <div class="exp-period">Dec 2025 — Mar 2026</div>
+      <ul class="exp-bullets">
+        <li>Architected a full-stack wedding planning platform using PHP, MySQL, and Tailwind CSS from ground up</li>
+        <li>Engineered 12-hour booking workflow and 30% advance payment date-locking system</li>
+        <li>Designed a normalized database with Role-Based Access Control (RBAC) for 3 user types</li>
+        <li>Implemented secure authentication (bcrypt) and offline-safe UI for local deployment</li>
+        <li>Built admin panel with cryptographically secure token-based invitations for multi-role management</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Education -->
+  <div style="margin-top:3rem;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:.55rem;color:var(--green);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem;">
+      <span style="color:var(--pink)">—</span> EDUCATION
+    </div>
+    <div class="exp-item reveal">
+      <div class="exp-role">Bachelor of Computer Application</div>
+      <div class="exp-company">AI MAM University</div>
+      <div class="exp-period">2026 | CGPA: 8.2 / 10</div>
+    </div>
+  </div>
+
+  <!-- Certifications -->
+  <div style="margin-top:3rem;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:.55rem;color:var(--green);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem;">
+      <span style="color:var(--pink)">—</span> CERTIFICATIONS
+    </div>
+    <div class="cert-grid stagger reveal">
+      <div class="cert-card">
+        <div class="cert-platform">🏆 HackerRank</div>
+        <div class="cert-name">Software Engineer (Role Certified)</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-platform">🏆 HackerRank</div>
+        <div class="cert-name">Problem Solving (Intermediate)</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-platform">🏆 HackerRank</div>
+        <div class="cert-name">SQL (Advanced &amp; Basic)</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-platform">🏆 HackerRank</div>
+        <div class="cert-name">CSS (Basic) &amp; Python (Basic)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="px-divider"></div>
+
+<!-- ======================== CONTACT ======================== -->
+<section id="contact">
+  <div class="section-label">05</div>
+  <div class="section-title reveal">LET'S_BUILD</div>
+  <div class="section-jp reveal">連絡先</div>
+
+  <div class="contact-wrap reveal">
+    <div class="contact-headline">OPEN TO OPPORTUNITIES</div>
+    <p style="color:#aaa;font-size:.82rem;margin-bottom:2rem;line-height:1.9;">
+      Available for full-stack development roles, freelance projects, and interesting problems worth solving.
+    </p>
+    <a href="mailto:kishan.18mm19@gmail.com" class="contact-email">kishan.18mm19@gmail.com</a>
+    <div class="contact-links stagger">
+      <a href="https://github.com/kishan-sip-it" target="_blank" class="contact-link">
+        <span class="cl-icon">🐙</span> GITHUB
+      </a>
+      <a href="https://www.linkedin.com/in/kishan-m-674156354/" target="_blank" class="contact-link">
+        <span class="cl-icon">💼</span> LINKEDIN
+      </a>
+      <a href="https://canva.link/b7pt00y52aof8k9" target="_blank" class="contact-link">
+        <span class="cl-icon">📄</span> RESUME
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 KISHAN MARWADI. ALL RIGHTS RESERVED.</span>
+  <span>BUILT WITH HTML / CSS / JS + ☕</span>
+</footer>
+
+<!-- ======================== SCRIPTS ======================== -->
+<script>
+/* ===================== CURSOR ===================== */
+const cursor = document.getElementById('cursor');
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;
+  addWaveRipple(mx,my);
+});
+document.addEventListener('click',e=>{
+  const r=document.createElement('div');
+  r.className='ripple';
+  r.style.cssText=`left:${e.clientX-6}px;top:${e.clientY-6}px;`;
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),700);
+});
+document.addEventListener('mousedown',()=>cursor.style.transform+=' scale(1.6)');
+document.addEventListener('mouseup',()=>cursor.style.transform=cursor.style.transform.replace(' scale(1.6)',''));
+
+/* ===================== WAVE CANVAS ===================== */
+const canvas=document.getElementById('wave-canvas');
+const ctx=canvas.getContext('2d');
+let W,H,waves=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+
+class WaveRipple{
+  constructor(x,y){this.x=x;this.y=y;this.r=0;this.alpha=1;this.speed=2+Math.random()*2;this.color=Math.random()>.5?'57,255,133':'255,45,120';}
+  update(){this.r+=this.speed;this.alpha=Math.max(0,1-this.r/120);}
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y+window.scrollY*0,this.r,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(${this.color},${this.alpha*0.6})`;
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+  }
+}
+
+let lastWave=0;
+function addWaveRipple(x,y){
+  const now=Date.now();
+  if(now-lastWave<30)return;
+  lastWave=now;
+  waves.push(new WaveRipple(x,y));
+  if(waves.length>60)waves.shift();
+}
+
+function animWave(){
+  ctx.clearRect(0,0,W,H);
+  waves=waves.filter(w=>w.alpha>0);
+  waves.forEach(w=>{w.update();w.draw();});
+  requestAnimationFrame(animWave);
+}animWave();
+
+/* ===================== SCROLL REVEAL ===================== */
+const revealEls=document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});
+},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+revealEls.forEach(el=>observer.observe(el));
+
+/* ===================== MINECRAFT CHAR INTERACTIONS ===================== */
+const mcChar=document.getElementById('mcChar');
+const activities=['mc-idle','mc-dance','mc-dig'];
+let actIdx=0;
+function cycleActivity(){
+  actIdx=(actIdx+1)%activities.length;
+  // change animation speed to simulate different activities
+  const armL=mcChar.querySelector('.arm.left');
+  const armR=mcChar.querySelector('.arm.right');
+  const legL=mcChar.querySelector('.leg.left');
+  const legR=mcChar.querySelector('.leg.right');
+  const tool=mcChar.querySelector('.tool');
+  const speeds=['0.8s','0.3s','1.2s'];
+  [armL,armR,legL,legR].forEach(el=>{if(el){el.style.animationDuration=speeds[actIdx];}});
+  if(tool) tool.style.animationDuration=speeds[actIdx];
+}
+setInterval(cycleActivity,3000);
+
+// Hover to make char jump
+mcChar.addEventListener('mouseenter',()=>{
+  mcChar.style.animationName='none';
+  mcChar.style.transform='translateY(-16px) scale(1.1)';
+  mcChar.style.transition='transform .3s';
+});
+mcChar.addEventListener('mouseleave',()=>{
+  mcChar.style.transform='';
+  mcChar.style.animationName='mc-idle';
+});
+
+// Click blocks
+document.querySelectorAll('.mc-block').forEach(b=>{
+  b.addEventListener('click',()=>{
+    b.style.transform='translateY(-8px) scale(.9)';
+    setTimeout(()=>b.style.transform='',300);
+  });
+});
+
+/* ===================== TYPING EFFECT ===================== */
+const msgs=['Building something great...','Pushing code to production...','Solving real problems...','Committing clean work...','Shipping features daily...'];
+let mIdx=0,cIdx=0,typing=true;
+const typEl=document.getElementById('typing-line');
+function typeLoop(){
+  if(typing){
+    if(cIdx<msgs[mIdx].length){typEl.textContent=msgs[mIdx].slice(0,++cIdx);setTimeout(typeLoop,55);}
+    else{typing=false;setTimeout(typeLoop,1800);}
+  } else {
+    if(cIdx>0){typEl.textContent=msgs[mIdx].slice(0,--cIdx);setTimeout(typeLoop,28);}
+    else{typing=true;mIdx=(mIdx+1)%msgs.length;setTimeout(typeLoop,300);}
+  }
+}typeLoop();
+
+/* ===================== THEME TOGGLE ===================== */
+const themes=[
+  {'--pink':'#ff2d78','--green':'#39ff85'},
+  {'--pink':'#ff6b35','--green':'#00d4ff'},
+  {'--pink':'#b44dff','--green':'#ffee00'},
+  {'--pink':'#00d4ff','--green':'#ff2d78'},
+];
+let themeIdx=0;
+function cyclePalette(){
+  themeIdx=(themeIdx+1)%themes.length;
+  const t=themes[themeIdx];
+  const root=document.documentElement;
+  root.style.setProperty('--pink',t['--pink']);
+  root.style.setProperty('--green',t['--green']);
+}
+
+/* ===================== PARALLAX HERO ===================== */
+window.addEventListener('scroll',()=>{
+  const scrollY=window.scrollY;
+  const hero=document.getElementById('hero');
+  if(hero){
+    const heroName=hero.querySelector('.hero-name');
+    if(heroName) heroName.style.transform=`translateY(${scrollY*.15}px)`;
+  }
+});
+
+/* ===================== ACTIVE NAV LINK ===================== */
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)current=s.id;});
+  navLinks.forEach(a=>{
+    a.style.color=a.getAttribute('href')==='#'+current?'var(--green)':'';
+  });
+});
+
+/* ===================== STAT COUNTER ANIMATION ===================== */
+function animateCount(el,target,suffix,dec=0){
+  let count=0;const step=target/40;
+  const t=setInterval(()=>{
+    count=Math.min(count+step,target);
+    el.textContent==count.toFixed(dec)+suffix;
+    if(count>=target)clearInterval(t);
+  },30);
+}
+const statsObs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const nums=e.target.querySelectorAll('.stat-num');
+     const data=[{v:1,s:'+',dec:0},{v:4,s:'+',dec:0},{v:8.2,s:'',dec:1}];
+      nums.forEach((n,i)=>{animateCount(n,data[i].v,data[i].s,data[i].dec);});
+      statsObs.disconnect();
+    }
+  });
+},{threshold:.5});
+const statsRow=document.querySelector('.stats-row');
+if(statsRow)statsObs.observe(statsRow);
+</script>
+</body>
+</html>
