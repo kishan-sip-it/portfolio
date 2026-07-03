@@ -148,6 +148,7 @@ section{position:relative;z-index:2;padding:7rem 2.5rem 5rem;}
   overflow:hidden;
 }
 .hero-left{}
+.hero-right{padding-top:2.6rem;}
 .hero-chapter{
   font-family:'Press Start 2P',monospace;
   font-size:.45rem;color:var(--grey);
@@ -805,18 +806,175 @@ footer span{font-family:'Press Start 2P',monospace;font-size:.35rem;}
 }
 
 /* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-  #hero{grid-template-columns:1fr;padding-top:8rem;}
-  .hero-name{font-size:1.6rem;}
-  .about-grid{grid-template-columns:1fr;}
-  .mc-avatar-box{width:200px;margin:0 auto;}
+
+/* ---- TABLET (max 1024px) ---- */
+@media(max-width:1024px){
+  #hero{
+    grid-template-columns:1fr 1fr;
+    gap:2rem;
+    padding:7rem 1.5rem 3rem;
+  }
+  .hero-name{font-size:1.8rem;}
+  .about-grid{grid-template-columns:240px 1fr;gap:2rem;}
+  .tech-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}
+  .cert-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ---- SMALL TABLET / LARGE PHONE (max 900px) ---- */
+@media(max-width:900px){
+  /* Hero stacks vertically */
+  #hero{
+    grid-template-columns:1fr;
+    padding:7rem 1.5rem 3rem;
+    gap:2rem;
+  }
+  .hero-right{padding-top:0;}
+  .hero-name{font-size:1.6rem;}
+  .hero-role{font-size:.6rem;}
+  .hero-desc{font-size:.8rem;}
+
+  /* About stacks vertically */
+  .about-grid{
+    grid-template-columns:1fr;
+    gap:2rem;
+  }
+  .mc-avatar-box{
+    width:220px;
+    margin:0 auto;
+  }
+
+  /* Projects full width */
+  .proj-card{padding:1.5rem;}
+  .proj-name{font-size:.85rem;}
+
+  /* Experience */
+  .exp-timeline{padding-left:1.2rem;}
+  .exp-item{padding:1.2rem;}
+  .exp-item::before{left:-1.6rem;}
+
+  /* Contact */
+  .contact-email{font-size:.7rem;word-break:break-all;}
+  .contact-links{gap:1rem;}
+
+  /* Footer */
+  footer{flex-direction:column;gap:.5rem;text-align:center;padding:1.2rem;}
+
+  /* Stats */
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ---- MOBILE (max 600px) ---- */
 @media(max-width:600px){
+  /* Nav */
   nav{padding:0 1rem;}
   .nav-links{display:none;}
-  section{padding:5rem 1.2rem 3rem;}
-  .hero-name{font-size:1.1rem;}
-  .stats-row{grid-template-columns:1fr;}
+  .nav-logo{font-size:.55rem;}
+  .nav-badge{font-size:.35rem;padding:.25rem .5rem;}
+  .nav-theme{font-size:.35rem;padding:.25rem .5rem;}
+
+  /* All sections */
+  section{padding:5rem 1rem 3rem;}
+
+  /* Hero */
+  #hero{padding:5.5rem 1rem 2rem;gap:1.5rem;}
+  .hero-chapter{font-size:.38rem;}
+  .hero-name{font-size:1rem;line-height:1.3;}
+  .hero-role{font-size:.5rem;line-height:1.6;}
+  .hero-desc{font-size:.75rem;line-height:1.7;padding-left:.8rem;}
+  .hero-btns{flex-direction:column;gap:.7rem;}
+  .btn-primary,.btn-secondary{
+    font-size:.42rem;
+    padding:.7rem 1rem;
+    text-align:center;
+  }
+  .status-badge{font-size:.35rem;}
+
+  /* Terminal */
+  .terminal-body{padding:.8rem;font-size:.7rem;}
+  .t-title{font-size:.35rem;}
+
+  /* Stats row — 3 columns still but smaller */
+  .stats-row{
+    grid-template-columns:repeat(3,1fr);
+    gap:.5rem;
+  }
+  .stat-box{padding:.8rem .4rem;}
+  .stat-num{font-size:.9rem;}
+  .stat-label{font-size:.38rem;letter-spacing:.05em;}
+
+  /* Minecraft stage */
+  .mc-stage{min-height:160px;transform:scale(.85);transform-origin:center bottom;}
+
+  /* Section titles */
+  .section-title{font-size:.9rem;}
+  .section-jp{font-size:.5rem;margin-bottom:2rem;}
+
+  /* About */
+  .about-grid{gap:1.5rem;}
+  .mc-avatar-box{width:180px;}
+  .about-intro{font-size:.5rem;}
+  .about-body p{font-size:.78rem;}
+  .stack-chips{gap:.4rem;}
+  .chip{font-size:.35rem;padding:.3rem .5rem;}
+  .lang-badges{gap:.4rem;}
+  .lang-badge{font-size:.35rem;padding:.3rem .5rem;}
+
+  /* Tech stack */
+  .tech-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.7rem;}
+  .tech-card{padding:.9rem .6rem;}
+  .tech-icon{font-size:1.4rem;}
+  .tech-name{font-size:.35rem;}
+  .tech-type{font-size:.5rem;}
+  .marquee-item{font-size:.4rem;}
+
+  /* Projects */
+  .proj-card{padding:1.2rem;}
+  .proj-num{font-size:.4rem;}
+  .proj-category{font-size:.35rem;}
+  .proj-name{font-size:.75rem;}
+  .proj-tagline{font-size:.6rem;}
+  .proj-desc{font-size:.75rem;}
+  .proj-tags{gap:.35rem;}
+  .proj-tag{font-size:.3rem;padding:.25rem .45rem;}
+  .proj-links{flex-wrap:wrap;gap:.6rem;}
+  .proj-link{font-size:.35rem;padding:.4rem .8rem;}
+
+  /* Experience */
+  .exp-timeline{padding-left:1rem;}
+  .exp-item{padding:1rem;}
+  .exp-item::before{left:-1.3rem;width:8px;height:8px;}
+  .exp-role{font-size:.5rem;}
+  .exp-company{font-size:.4rem;}
+  .exp-period{font-size:.6rem;}
+  .exp-bullets li{font-size:.74rem;}
+
+  /* Certs */
+  .cert-grid{grid-template-columns:1fr 1fr;gap:.7rem;}
+  .cert-card{padding:.9rem;}
+  .cert-platform{font-size:.35rem;}
+  .cert-name{font-size:.65rem;}
+
+  /* Contact */
+  .contact-headline{font-size:.5rem;}
+  .contact-email{font-size:.6rem;word-break:break-all;}
+  .contact-links{flex-direction:column;align-items:center;gap:.8rem;}
+  .contact-link{font-size:.42rem;padding:.7rem 1rem;width:200px;justify-content:center;}
+
+  /* Footer */
+  footer{
+    flex-direction:column;gap:.6rem;
+    text-align:center;padding:1rem;
+  }
+  footer span{font-size:.3rem;}
+}
+
+/* ---- VERY SMALL PHONES (max 380px) ---- */
+@media(max-width:380px){
+  .hero-name{font-size:.82rem;}
+  .stats-row{grid-template-columns:1fr;gap:.5rem;}
+  .cert-grid{grid-template-columns:1fr;}
+  .tech-grid{grid-template-columns:repeat(2,1fr);}
+  nav .nav-theme{display:none;}
 }
 </style>
 </head>
@@ -1107,7 +1265,7 @@ footer span{font-family:'Press Start 2P',monospace;font-size:.35rem;}
       </div>
       <div class="proj-links">
         <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link">[ GITHUB ]</a>
-        <a href="http://samaaroh.freehosting.dev/" class="proj-link live">[ LIVE DEMO ]</a>
+        <a href="#" class="proj-link live">[ LIVE DEMO ]</a>
       </div>
     </div>
 
@@ -1129,7 +1287,7 @@ footer span{font-family:'Press Start 2P',monospace;font-size:.35rem;}
       </div>
       <div class="proj-links">
         <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link">[ GITHUB ]</a>
-        <a href="https://pypi.org/account/login/?next=https%3A%2F%2Fpypi.org%2F" class="proj-link live">[ PyPI ]</a>
+        <a href="#" class="proj-link live">[ PyPI ]</a>
       </div>
     </div>
 
@@ -1146,7 +1304,7 @@ footer span{font-family:'Press Start 2P',monospace;font-size:.35rem;}
 
   <div class="exp-timeline">
     <div class="exp-item reveal">
-      <div class="exp-role"> Full-Stack Developer</div>
+      <div class="exp-role">Lead Full-Stack Developer</div>
       <div class="exp-company">In-House BCA Capstone Project</div>
       <div class="exp-period">Dec 2025 — Mar 2026</div>
       <ul class="exp-bullets">
@@ -1385,7 +1543,7 @@ function animateCount(el,target,suffix,dec=0){
   let count=0;const step=target/40;
   const t=setInterval(()=>{
     count=Math.min(count+step,target);
-    el.textContent==count.toFixed(dec)+suffix;
+    el.textContent=count.toFixed(dec)+suffix;
     if(count>=target)clearInterval(t);
   },30);
 }
@@ -1393,7 +1551,7 @@ const statsObs=new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
       const nums=e.target.querySelectorAll('.stat-num');
-     const data=[{v:1,s:'+',dec:0},{v:4,s:'+',dec:0},{v:8.2,s:'',dec:1}];
+      const data=[{v:1,s:'+',dec:0},{v:4,s:'+',dec:0},{v:8.2,s:'',dec:1}];
       nums.forEach((n,i)=>{animateCount(n,data[i].v,data[i].s,data[i].dec);});
       statsObs.disconnect();
     }
