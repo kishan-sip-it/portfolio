@@ -147,6 +147,42 @@ nav{
 }
 .nav-theme:hover{border-color:var(--pink);color:var(--pink);}
 
+/* ===== HAMBURGER (only shown when nav-links are hidden below) ===== */
+.nav-burger{
+  display:none;
+  flex-direction:column;justify-content:center;gap:4px;
+  width:28px;height:28px;
+  background:transparent;border:1px solid var(--border);
+  cursor:none;flex-shrink:0;padding:0;
+}
+.nav-burger span{
+  display:block;width:16px;height:2px;background:var(--green);
+  margin:0 auto;transition:all .25s;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.nav-burger.open span:nth-child(2){opacity:0;}
+.nav-burger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+.mobile-menu{
+  position:fixed;top:56px;left:0;right:0;z-index:99;
+  background:rgba(10,10,10,.98);
+  border-bottom:2px solid var(--pink);
+  display:flex;flex-direction:column;
+  max-height:0;overflow:hidden;
+  transition:max-height .3s ease;
+}
+.mobile-menu.open{max-height:400px;}
+.mobile-menu a{
+  font-family:'Press Start 2P',monospace;
+  font-size:.55rem;color:var(--grey);
+  text-decoration:none;
+  padding:1rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  letter-spacing:.1em;
+  transition:all .2s;
+}
+.mobile-menu a:hover{color:var(--green);background:rgba(57,255,133,.06);}
+
 /* ===== SKILL SEARCH ===== */
 .nav-search-wrap{
   position:relative;
@@ -983,10 +1019,12 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
    layout-direction switches at very small widths. */
 
 @media(max-width:920px){
-  /* Full nav no longer fits comfortably — collapse the link list.
+  /* Full nav no longer fits comfortably — collapse the link list
+     into a hamburger menu instead of deleting navigation entirely.
      Fires at the SAME breakpoint as the search-box collapse above,
      so there is never a width where both compete for space. */
   .nav-links{display:none;}
+  .nav-burger{display:flex;}
 }
 
 @media(max-width:640px){
@@ -1029,8 +1067,21 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
     </div>
     <div class="nav-theme" onclick="cyclePalette()">⌘ THEME</div>
     <div class="nav-badge">● AVAILABLE</div>
+    <button class="nav-burger" id="navBurger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile nav dropdown — same links as desktop nav, just presented
+     as a menu instead of being deleted when space runs out -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobileMenu()">ABOUT</a>
+  <a href="#stack" onclick="closeMobileMenu()">STACK</a>
+  <a href="#projects" onclick="closeMobileMenu()">PROJECTS</a>
+  <a href="#experience" onclick="closeMobileMenu()">EXPERIENCE</a>
+  <a href="#contact" onclick="closeMobileMenu()">CONTACT</a>
+</div>
 
 <!-- ======================== HERO ======================== -->
 <section id="hero">
@@ -1308,8 +1359,8 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
         <div class="proj-tag tag-react">React.js</div>
       </div>
       <div class="proj-links">
-        <a href="https://github.com/kishan-sip-it/AIVOA" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
-        <a href="https://aivoa1.netlify.app/" target="_blank" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+        <a href="#" target="_blank" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>
       </div>
     </div>
 
@@ -1332,7 +1383,7 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
         <div class="proj-tag tag-bcrypt">bcrypt</div>
       </div>
       <div class="proj-links">
-        <a href="https://github.com/kishan-sip-it/samaaroh_file" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
         <a href="http://samaaroh.freehosting.dev/" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>
       </div>
     </div>
@@ -1355,7 +1406,7 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
         <div class="proj-tag tag-dsa">DSA</div>
       </div>
       <div class="proj-links">
-        <a href="https://github.com/kishan-sip-it/Pyforge" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
         <a href="https://pypi.org/account/login/?next=https%3A%2F%2Fpypi.org%2F" class="proj-link live"><span class="pl-icon">📦</span>PyPI</a>
       </div>
     </div>
@@ -1469,6 +1520,16 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
 
 <!-- ======================== SCRIPTS ======================== -->
 <script>
+/* ===================== MOBILE MENU ===================== */
+function toggleMobileMenu(){
+  document.getElementById('navBurger').classList.toggle('open');
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMobileMenu(){
+  document.getElementById('navBurger').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
 /* ===================== SKILL SEARCH ===================== */
 function toggleSearch(){
   const wrap = document.getElementById('navSearchWrap');
