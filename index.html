@@ -1037,9 +1037,75 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
 @media(max-width:400px){
   .nav-theme{display:none;}
 }
+/* ================= ENTRANCE LOADER (new addition — self-contained, doesn't alter anything above) ================= */
+.entrance-loader{
+  position:fixed;inset:0;z-index:99999;
+  background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .6s ease, visibility .6s ease;
+  cursor:none;
+}
+.entrance-loader.fade-out{opacity:0;visibility:hidden;pointer-events:none;}
+.entrance-inner{text-align:center;padding:2rem;max-width:90vw;}
+.entrance-glitch{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(.7rem,2vw + .5rem,1.4rem);
+  color:var(--green);
+  text-shadow:0 0 20px var(--green);
+  margin-bottom:1.5rem;
+  letter-spacing:.05em;
+  animation:entrance-flicker 2s infinite;
+}
+@keyframes entrance-flicker{
+  0%,92%,100%{opacity:1;}
+  93%{opacity:.4;}
+  95%{opacity:1;}
+  96%{opacity:.6;}
+}
+.entrance-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.6rem,.5rem + .3vw,.8rem);
+  color:var(--pink);
+  margin-bottom:2rem;
+  min-height:1.4em;
+}
+.entrance-bar-track{
+  width:min(80vw,320px);
+  height:12px;
+  border:2px solid var(--green);
+  margin:0 auto 1rem;
+  padding:2px;
+  background:#0d0d0d;
+}
+.entrance-bar-fill{
+  height:100%;
+  width:0%;
+  background:repeating-linear-gradient(90deg,var(--pink) 0 8px, var(--green) 8px 16px);
+  transition:width .2s linear;
+}
+.entrance-percent{
+  font-family:'Press Start 2P',monospace;
+  font-size:.6rem;
+  color:var(--grey);
+}
+@media(max-width:500px){
+  .entrance-glitch{font-size:clamp(.6rem,3vw + .3rem,1rem);}
+}
 </style>
 </head>
 <body>
+
+<!-- ================= ENTRANCE LOADER (new — added on top, nothing below touched) ================= -->
+<div id="entranceLoader" class="entrance-loader">
+  <div class="entrance-inner">
+    <div class="entrance-glitch" data-text="ENTERING MULTIVERSE">ENTERING MULTIVERSE</div>
+    <div class="entrance-sub" id="entranceStatus">Initializing timeline...</div>
+    <div class="entrance-bar-track">
+      <div class="entrance-bar-fill" id="entranceBarFill"></div>
+    </div>
+    <div class="entrance-percent" id="entrancePercent">0%</div>
+  </div>
+</div>
 
 <!-- Custom cursor -->
 <div id="cursor"></div>
@@ -1751,6 +1817,50 @@ const statsObs=new IntersectionObserver((entries)=>{
 },{threshold:.5});
 const statsRow=document.querySelector('.stats-row');
 if(statsRow)statsObs.observe(statsRow);
+/* ================= ENTRANCE LOADER (new addition — self-contained IIFE, doesn't touch anything above) ================= */
+(function(){
+  const loader = document.getElementById('entranceLoader');
+  if(!loader) return;
+  document.body.style.overflow = 'hidden';
+
+  const statusEl = document.getElementById('entranceStatus');
+  const fillEl = document.getElementById('entranceBarFill');
+  const pctEl = document.getElementById('entrancePercent');
+  const messages = [
+    'Initializing timeline...',
+    'Rendering entity data...',
+    'Connecting to multiverse...',
+    'Loading skill matrix...',
+    'Spawning protagonist...',
+    'Almost there...'
+  ];
+
+  let pct = 0;
+  statusEl.textContent = messages[0];
+
+  const interval = setInterval(() => {
+    pct += Math.random() * 12 + 4;
+
+    if(pct >= 100){
+      pct = 100;
+      clearInterval(interval);
+      statusEl.textContent = 'Welcome, Kishan.';
+      fillEl.style.width = '100%';
+      pctEl.textContent = '100%';
+      setTimeout(() => {
+        loader.classList.add('fade-out');
+        document.body.style.overflow = '';
+        setTimeout(() => loader.remove(), 700);
+      }, 500);
+      return;
+    }
+
+    const msgIndex = Math.min(Math.floor((pct / 100) * messages.length), messages.length - 1);
+    statusEl.textContent = messages[msgIndex];
+    fillEl.style.width = pct + '%';
+    pctEl.textContent = Math.floor(pct) + '%';
+  }, 220);
+})();
 </script>
 </body>
 </html>
