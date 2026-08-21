@@ -788,11 +788,18 @@ section{position:relative;z-index:2;padding:var(--section-pad-top) var(--section
 .proj-tag.tag-testing{border-color:#ffd43b;color:#ffd43b;}
 .proj-tag.tag-pypi{border-color:#6366f1;color:#818cf8;}
 .proj-tag.tag-dsa{border-color:#fb923c;color:#fb923c;}
+.proj-tag.tag-jwt{border-color:#fb7185;color:#fb7185;}
+.proj-tag.tag-redux{border-color:#764abc;color:#a78bfa;}
+.proj-tag.tag-nextjs{border-color:#94a3b8;color:#cbd5e1;}
+.proj-tag.tag-typescript{border-color:#3178c6;color:#60a5fa;}
+.proj-tag.tag-drizzle{border-color:#c5f74f;color:#c5f74f;}
 .proj-tag.tag-python:hover,.proj-tag.tag-fastapi:hover,.proj-tag.tag-langgraph:hover,
 .proj-tag.tag-postgresql:hover,.proj-tag.tag-react:hover,.proj-tag.tag-php:hover,
 .proj-tag.tag-mysql:hover,.proj-tag.tag-tailwind:hover,.proj-tag.tag-rbac:hover,
 .proj-tag.tag-bcrypt:hover,.proj-tag.tag-testing:hover,.proj-tag.tag-pypi:hover,
-.proj-tag.tag-dsa:hover{filter:brightness(1.3);transform:translateY(-2px);}
+.proj-tag.tag-dsa:hover,.proj-tag.tag-jwt:hover,.proj-tag.tag-redux:hover,
+.proj-tag.tag-nextjs:hover,.proj-tag.tag-typescript:hover,
+.proj-tag.tag-drizzle:hover{filter:brightness(1.3);transform:translateY(-2px);}
 .proj-links{display:flex;gap:.5rem;margin-top:auto;flex-wrap:wrap;}
 .proj-link{
   font-family:'Press Start 2P',monospace;font-size:clamp(.32rem,.4vw + .22rem,.4rem);
@@ -1475,6 +1482,54 @@ footer span{font-family:'Press Start 2P',monospace;font-size:clamp(.28rem,.24rem
       <div class="proj-links">
         <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
         <a href="https://pypi.org/account/login/?next=https%3A%2F%2Fpypi.org%2F" class="proj-link live"><span class="pl-icon">📦</span>PyPI</a>
+      </div>
+    </div>
+
+    <!-- Project 4 -->
+    <div class="proj-card reveal" style="--proj-color:#ff2d78;">
+      <div class="proj-head">
+        <div class="proj-category">LEAD MANAGEMENT SAAS</div>
+        <div class="proj-num">#004</div>
+      </div>
+      <div class="proj-name">KINDLING</div>
+      <div class="proj-tagline">Spark → Warming → Catching → Ablaze</div>
+      <p class="proj-desc">
+        Lead management app for a sales team — public capture form, admin/member role pipeline with assignment and notes, and a fully documented JSON API. Every status, assignment, and note change writes an automatic <strong>activity log</strong> entry.
+      </p>
+      <div class="proj-tags">
+        <div class="proj-tag tag-fastapi">FastAPI</div>
+        <div class="proj-tag tag-postgresql">PostgreSQL</div>
+        <div class="proj-tag tag-jwt">JWT</div>
+        <div class="proj-tag tag-react">React</div>
+        <div class="proj-tag tag-redux">Redux Toolkit</div>
+      </div>
+      <div class="proj-links">
+        <a href="https://github.com/kishan-sip-it" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+        <a href="https://kindling1.netlify.app/" target="_blank" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>
+      </div>
+    </div>
+
+    <!-- Project 5 -->
+    <div class="proj-card reveal" style="--proj-color:#ff2d78;">
+      <div class="proj-head">
+        <div class="proj-category">MISSING PERSON PLATFORM</div>
+        <div class="proj-num">#005</div>
+      </div>
+      <div class="proj-name">LPFINDER</div>
+      <div class="proj-tagline">Report, Search, Reunite</div>
+      <p class="proj-desc">
+        Full-stack missing-person reporting platform with Finder/Reporter/Admin roles. Ownership is checked <strong>server-side</strong> against the authenticated user's ID — never trusted from the client — with JWT stored in HTTP-only cookies.
+      </p>
+      <div class="proj-tags">
+        <div class="proj-tag tag-nextjs">Next.js</div>
+        <div class="proj-tag tag-typescript">TypeScript</div>
+        <div class="proj-tag tag-drizzle">Drizzle ORM</div>
+        <div class="proj-tag tag-postgresql">PostgreSQL</div>
+        <div class="proj-tag tag-jwt">JWT</div>
+      </div>
+      <div class="proj-links">
+        <a href="https://github.com/kishan-sip-it/LPFinder" target="_blank" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+        <a href="https://lpfinder.onrender.com/" target="_blank" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>
       </div>
     </div>
 
