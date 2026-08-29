@@ -8,7 +8,7 @@
     lpfinder: 'https://lpfinder.onrender.com/',
     kindling: 'https://kindling1.netlify.app/',
     aivoa: 'https://aivoa1.netlify.app/',
-    samaaroh_file: 'http://samaaroh.freehosting.dev/'
+    samaaroh_file: 'https://samaaroh-uron.onrender.com/'
   };
 
   const TAG_CLASS = {
@@ -111,6 +111,26 @@
     }, 100);
   }
 
+  function replaceLegacySamaarohLinks() {
+    const current = 'https://samaaroh-uron.onrender.com/';
+    const legacy = [
+      'http://samaaroh.freehosting.dev/',
+      'https://samaaroh.freehosting.dev/',
+      'http://samaaroh.freehosting.dev',
+      'https://samaaroh.freehosting.dev'
+    ];
+
+    document.querySelectorAll('a[href]').forEach(anchor => {
+      const href = anchor.getAttribute('href');
+      if (!href) return;
+      if (legacy.includes(href.trim())) {
+        anchor.setAttribute('href', current);
+        anchor.setAttribute('target', '_blank');
+        anchor.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+  }
+
   function installCarousel(grid, cards) {
     const existing = grid.parentElement.querySelector('.github-project-nav');
     if (existing) existing.remove();
@@ -199,6 +219,8 @@
     if (!grid) return;
 
     try {
+      replaceLegacySamaarohLinks();
+
       let repos = Array.isArray(window.__GITHUB_PROJECTS__) ? window.__GITHUB_PROJECTS__ : null;
       if (!repos) repos = await fetchLiveFallback();
 
@@ -229,8 +251,12 @@
         });
       }, { threshold: .1, rootMargin: '0px 0px -60px 0px' });
       cards.forEach(card => revealObserver.observe(card));
+
+      // The static fallback card can still exist elsewhere in the page.
+      replaceLegacySamaarohLinks();
     } catch (error) {
       console.warn('GitHub project sync unavailable; keeping portfolio fallback projects.', error);
+      replaceLegacySamaarohLinks();
     }
   }
 
