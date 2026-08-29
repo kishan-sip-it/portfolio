@@ -153,7 +153,7 @@ The portfolio links visitors to projects in the GitHub account, including:
 - **AIVOA** — AI-assisted pharmaceutical complaint intake and triage
 - **LPFinder / ReuniteFind** — missing-person reporting and discovery platform
 - **Kindling** — lead-management application
-- **Samaaroh** — wedding-planning platform
+- **Samaaroh** — wedding-planning platform — [Live Demo](https://samaaroh-uron.onrender.com/)
 - **Wavelength** — frontend signup-wizard experience
 - **TaskFlow** — full-stack task management application
 
