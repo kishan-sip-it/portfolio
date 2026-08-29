@@ -2,6 +2,7 @@
   'use strict';
 
   const OWNER = 'kishan-sip-it';
+  const EXCLUDED_REPOS = new Set(['portfolio', 'kishan-sip-it']);
   const LIVE_URLS = {
     lpfinder: 'https://lpfinder.onrender.com/',
     kindling: 'https://kindling1.netlify.app/',
@@ -10,65 +11,22 @@
   };
 
   const TAG_CLASS = {
-    python: 'tag-python',
-    php: 'tag-php',
-    javascript: 'tag-react',
-    typescript: 'tag-typescript',
-    react: 'tag-react',
-    postgresql: 'tag-postgresql',
-    mysql: 'tag-mysql',
-    fastapi: 'tag-fastapi',
-    langgraph: 'tag-langgraph',
-    tailwind: 'tag-tailwind',
-    jwt: 'tag-jwt',
-    redux: 'tag-redux',
-    nextjs: 'tag-nextjs',
-    drizzle: 'tag-drizzle',
-    rbac: 'tag-rbac',
-    bcrypt: 'tag-bcrypt',
-    testing: 'tag-testing',
-    pypi: 'tag-pypi',
-    dsa: 'tag-dsa',
-    css: 'tag-css',
-    html: 'tag-html',
-    java: 'tag-java',
-    csharp: 'tag-csharp',
-    'c++': 'tag-cpp',
-    sql: 'tag-sql'
+    python: 'tag-python', php: 'tag-php', javascript: 'tag-react',
+    typescript: 'tag-typescript', react: 'tag-react', postgresql: 'tag-postgresql',
+    mysql: 'tag-mysql', fastapi: 'tag-fastapi', langgraph: 'tag-langgraph',
+    tailwind: 'tag-tailwind', jwt: 'tag-jwt', redux: 'tag-redux',
+    nextjs: 'tag-nextjs', drizzle: 'tag-drizzle', rbac: 'tag-rbac',
+    bcrypt: 'tag-bcrypt', testing: 'tag-testing', pypi: 'tag-pypi', dsa: 'tag-dsa'
   };
 
   function escapeHtml(value) {
     return String(value ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
   }
 
   function prettyName(name) {
     return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  function prettyTech(value) {
-    const aliases = {
-      js: 'JavaScript',
-      ts: 'TypeScript',
-      csharp: 'C#',
-      cpp: 'C++',
-      nextjs: 'Next.js',
-      nodejs: 'Node.js',
-      postgres: 'PostgreSQL',
-      postgresql: 'PostgreSQL',
-      mysql: 'MySQL',
-      fastapi: 'FastAPI',
-      langgraph: 'LangGraph',
-      tailwindcss: 'Tailwind CSS',
-      tailwind: 'Tailwind',
-      reactjs: 'React'
-    };
-    const key = String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
-    return aliases[key] || String(value).replace(/[-_]+/g, ' ');
   }
 
   function category(repo) {
@@ -90,14 +48,13 @@
   function tags(repo) {
     const values = [];
     if (repo.language) values.push(repo.language);
-    (repo.githubLanguages || []).forEach(language => values.push(language));
     (repo.topics || []).forEach(topic => values.push(topic));
-    return [...new Set(values.map(v => prettyTech(v)))].slice(0, 8);
+    if (repo.stargazers_count > 0) values.push('stars');
+    return [...new Set(values.map(v => String(v).toLowerCase()))].slice(0, 8);
   }
 
   function tagClass(tag) {
-    const normalized = tag.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return TAG_CLASS[normalized] || '';
+    return TAG_CLASS[tag.replace(/[^a-z0-9]/g, '')] || '';
   }
 
   function renderCard(repo, index) {
@@ -128,6 +85,39 @@
       </div>`;
   }
 
+  /*
+   * The original inline stats animation in index.html still starts with the
+   * old fallback value (4+). This sync deliberately wins that race: it writes
+   * the GitHub count immediately and keeps it locked while the old animation
+   * finishes, so the displayed value cannot jump back to 4+.
+   */
+  function syncProjectStatCount(count) {
+    const stat = [...document.querySelectorAll('.stat-box')]
+      .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
+    if (!stat) return;
+
+    const number = stat.querySelector('.stat-num');
+    if (!number) return;
+
+    number.dataset.githubProjectCount = String(count);
+    const expected = `${count}+`;
+    const apply = () => {
+      if (number.textContent !== expected) number.textContent = expected;
+    };
+
+    apply();
+    if (number._githubCountTimer) clearInterval(number._githubCountTimer);
+    const started = Date.now();
+    number._githubCountTimer = setInterval(() => {
+      apply();
+      if (Date.now() - started >= 2500) {
+        clearInterval(number._githubCountTimer);
+        number._githubCountTimer = null;
+        apply();
+      }
+    }, 40);
+  }
+
   function installCarousel(grid, cards) {
     const existing = grid.parentElement.querySelector('.github-project-nav');
     if (existing) existing.remove();
@@ -155,6 +145,7 @@
       nav.querySelector('[data-dir="-1"]').disabled = page === 0;
       nav.querySelector('[data-dir="1"]').disabled = page === pageCount - 1;
     };
+
     nav.addEventListener('click', event => {
       const button = event.target.closest('.github-project-arrow');
       if (!button) return;
@@ -175,7 +166,6 @@
       .github-project-arrow:hover:not(:disabled){background:var(--green);color:var(--black);box-shadow:0 0 14px rgba(57,255,133,.25);}
       .github-project-arrow:disabled{opacity:.25;cursor:not-allowed;}
       .github-project-page{font-family:'Press Start 2P',monospace;font-size:.42rem;color:var(--grey);min-width:72px;text-align:center;}
-      .github-project .proj-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
       @media(min-width:921px){.github-project-carousel{grid-template-columns:repeat(3,minmax(0,1fr));}}
       @media(max-width:920px) and (min-width:641px){.github-project-carousel{grid-template-columns:repeat(2,minmax(0,1fr));}}
       @media(max-width:640px){.github-project-carousel{grid-template-columns:1fr;}}
@@ -183,76 +173,32 @@
     document.head.appendChild(style);
   }
 
-  function updateProjectStat(count) {
-    const candidates = [
-      ...document.querySelectorAll('.stat-box .stat-num, .stat-num, [data-stat="projects"], [data-stat="project-count"]')
-    ];
-
-    let target = candidates.find(el => {
-      const boxText = el.closest('.stat-box')?.textContent || el.parentElement?.textContent || '';
-      return /projects/i.test(boxText);
-    });
-
-    if (!target) {
-      const labels = [...document.querySelectorAll('.stat-box, .stat, .stat-item, .hero-stat, .stats > *')];
-      const projectBox = labels.find(box => /projects/i.test(box.textContent || ''));
-      target = projectBox?.querySelector('.stat-num, .stat-number, .number, strong, b');
-    }
-
-    if (target) {
-      target.dataset.githubProjectCount = String(count);
-      target.textContent = `${count}+`;
-    }
-
-    // Keep any explicit project-count elements synchronized as well.
-    document.querySelectorAll('[data-project-count]').forEach(el => {
-      el.textContent = `${count}+`;
-    });
-  }
-
-  async function loadLanguages(repo) {
-    try {
-      const response = await fetch(`https://api.github.com/repos/${OWNER}/${encodeURIComponent(repo.name)}/languages`, {
-        headers: { Accept: 'application/vnd.github+json' },
-        cache: 'no-store'
-      });
-      if (!response.ok) return repo;
-      const languageMap = await response.json();
-      repo.githubLanguages = Object.keys(languageMap);
-    } catch (_) {
-      repo.githubLanguages = [];
-    }
-    return repo;
-  }
-
   async function loadProjects() {
     const grid = document.querySelector('.projects-grid');
     if (!grid) return;
 
     try {
-      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&type=all&sort=pushed`, {
+      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&sort=pushed`, {
         headers: { Accept: 'application/vnd.github+json' },
         cache: 'no-store'
       });
       if (!response.ok) throw new Error(`GitHub API ${response.status}`);
-      const repos = await response.json();
 
-      // The portfolio mirrors every non-private, non-fork, non-archived repository.
-      // This intentionally includes the profile repository and this portfolio repository
-      // so the visible count exactly matches GitHub's public repository count.
+      const repos = await response.json();
       const projects = repos
-        .filter(repo => !repo.private && !repo.fork && !repo.archived)
+        .filter(repo => !repo.private && !repo.fork && !repo.archived && !EXCLUDED_REPOS.has(repo.name))
         .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
 
       if (!projects.length) return;
 
-      const enriched = await Promise.all(projects.map(loadLanguages));
-      grid.innerHTML = enriched.map(renderCard).join('');
+      /* This is the single source of truth for the visible project counter. */
+      syncProjectStatCount(projects.length);
+
+      grid.innerHTML = projects.map(renderCard).join('');
       const cards = [...grid.querySelectorAll('.github-project')];
 
       addCarouselStyles();
       installCarousel(grid, cards);
-      updateProjectStat(enriched.length);
 
       const revealObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
