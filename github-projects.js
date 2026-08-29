@@ -4,7 +4,6 @@
   const OWNER = 'kishan-sip-it';
   const PORTFOLIO_REPO = 'portfolio';
 
-  // Known deployed project URLs. GitHub remains the source of truth for repo data.
   const LIVE_URLS = {
     lpfinder: 'https://lpfinder.onrender.com/',
     kindling: 'https://kindling1.netlify.app/',
@@ -86,22 +85,30 @@
       </div>`;
   }
 
+  function getProjectStatNumber() {
+    const stat = [...document.querySelectorAll('.stat-box')]
+      .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
+    return stat?.querySelector('.stat-num') || null;
+  }
+
   function syncProjectStatCount(count) {
-    // The old inline stat observer animated the hard-coded 4+ value.
-    // Disconnect it so it can never overwrite the GitHub-derived count.
+    const number = getProjectStatNumber();
+    if (!number) return;
+
     try {
       if (typeof statsObs !== 'undefined') statsObs.disconnect();
     } catch (_) {}
 
-    const stat = [...document.querySelectorAll('.stat-box')]
-      .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
-    if (!stat) return;
-
-    const number = stat.querySelector('.stat-num');
-    if (!number) return;
-
+    const expected = `${count}+`;
     number.dataset.githubProjectCount = String(count);
-    number.textContent = `${count}+`;
+    number.textContent = expected;
+
+    // Protect the GitHub value from the legacy hard-coded 4+ counter and
+    // any delayed observer callback that may already be queued.
+    if (number._githubCountTimer) clearInterval(number._githubCountTimer);
+    number._githubCountTimer = setInterval(() => {
+      if (number.textContent !== expected) number.textContent = expected;
+    }, 100);
   }
 
   function installCarousel(grid, cards) {
@@ -170,26 +177,45 @@
     return response.json();
   }
 
+  async function fetchLanguages(repo) {
+    const url = repo.languages_url || `https://api.github.com/repos/${OWNER}/${encodeURIComponent(repo.name)}/languages`;
+    try {
+      const response = await fetch(url, {
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store'
+      });
+      if (!response.ok) return repo.language ? [repo.language] : [];
+      const languageMap = await response.json();
+      return Object.entries(languageMap)
+        .sort(([, a], [, b]) => Number(b) - Number(a))
+        .map(([language]) => language);
+    } catch {
+      return repo.language ? [repo.language] : [];
+    }
+  }
+
   async function loadProjects() {
     const grid = document.querySelector('.projects-grid');
     if (!grid) return;
 
     try {
-      // Netlify generates this data during every build from GitHub's public API.
-      // Runtime API fallback is retained for local development.
       let repos = Array.isArray(window.__GITHUB_PROJECTS__) ? window.__GITHUB_PROJECTS__ : null;
       if (!repos) repos = await fetchLiveFallback();
 
+      // All public, non-archived repositories are included in both the
+      // counter and the project carousel. Private repositories never enter it.
       const publicRepos = repos.filter(repo => !repo.private && !repo.archived);
       syncProjectStatCount(publicRepos.length);
 
-      // Show every public repository. This intentionally keeps the project
-      // section count aligned with the public-repository counter.
       const projects = publicRepos
         .slice()
         .sort((a, b) => new Date(b.pushed_at || b.updated_at) - new Date(a.pushed_at || a.updated_at));
 
       if (!projects.length) return;
+
+      await Promise.all(projects.map(async repo => {
+        repo.githubLanguages = (await fetchLanguages(repo)).slice(0, 5);
+      }));
 
       grid.innerHTML = projects.map(renderCard).join('');
       const cards = [...grid.querySelectorAll('.github-project')];
