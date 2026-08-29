@@ -2,10 +2,10 @@
   'use strict';
 
   const OWNER = 'kishan-sip-it';
-  const EXCLUDED_REPOS = new Set(['portfolio', 'kishan-sip-it']);
   const LIVE_URLS = {
     lpfinder: 'https://lpfinder.onrender.com/',
     kindling: 'https://kindling1.netlify.app/',
+    aivoa: 'https://aivoa1.netlify.app/',
     samaaroh_file: 'http://samaaroh.freehosting.dev/'
   };
 
@@ -28,7 +28,13 @@
     bcrypt: 'tag-bcrypt',
     testing: 'tag-testing',
     pypi: 'tag-pypi',
-    dsa: 'tag-dsa'
+    dsa: 'tag-dsa',
+    css: 'tag-css',
+    html: 'tag-html',
+    java: 'tag-java',
+    csharp: 'tag-csharp',
+    'c++': 'tag-cpp',
+    sql: 'tag-sql'
   };
 
   function escapeHtml(value) {
@@ -42,6 +48,27 @@
 
   function prettyName(name) {
     return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function prettyTech(value) {
+    const aliases = {
+      js: 'JavaScript',
+      ts: 'TypeScript',
+      csharp: 'C#',
+      cpp: 'C++',
+      nextjs: 'Next.js',
+      nodejs: 'Node.js',
+      postgres: 'PostgreSQL',
+      postgresql: 'PostgreSQL',
+      mysql: 'MySQL',
+      fastapi: 'FastAPI',
+      langgraph: 'LangGraph',
+      tailwindcss: 'Tailwind CSS',
+      tailwind: 'Tailwind',
+      reactjs: 'React'
+    };
+    const key = String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+    return aliases[key] || String(value).replace(/[-_]+/g, ' ');
   }
 
   function category(repo) {
@@ -63,20 +90,22 @@
   function tags(repo) {
     const values = [];
     if (repo.language) values.push(repo.language);
+    (repo.githubLanguages || []).forEach(language => values.push(language));
     (repo.topics || []).forEach(topic => values.push(topic));
-    if (repo.stargazers_count > 0) values.push('stars');
-    return [...new Set(values.map(v => String(v).toLowerCase()))].slice(0, 5);
+    return [...new Set(values.map(v => prettyTech(v)))].slice(0, 8);
   }
 
   function tagClass(tag) {
-    const normalized = tag.replace(/[^a-z0-9]/g, '');
+    const normalized = tag.toLowerCase().replace(/[^a-z0-9]/g, '');
     return TAG_CLASS[normalized] || '';
   }
 
   function renderCard(repo, index) {
     const liveUrl = LIVE_URLS[repo.name.toLowerCase()] || repo.homepage || '';
     const repoTags = tags(repo);
-    const updated = repo.updated_at ? new Date(repo.updated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : '';
+    const updated = repo.updated_at
+      ? new Date(repo.updated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })
+      : '';
     const stats = `${repo.stargazers_count || 0}★ · ${repo.forks_count || 0} forks`;
 
     return `
@@ -120,8 +149,7 @@
     const pageCount = Math.ceil(cards.length / 6);
     const renderPage = () => {
       cards.forEach((card, i) => {
-        const visible = i >= page * 6 && i < (page + 1) * 6;
-        card.style.display = visible ? '' : 'none';
+        card.style.display = i >= page * 6 && i < (page + 1) * 6 ? '' : 'none';
       });
       nav.querySelector('.github-project-page').textContent = `${page + 1} / ${pageCount}`;
       nav.querySelector('[data-dir="-1"]').disabled = page === 0;
@@ -147,6 +175,7 @@
       .github-project-arrow:hover:not(:disabled){background:var(--green);color:var(--black);box-shadow:0 0 14px rgba(57,255,133,.25);}
       .github-project-arrow:disabled{opacity:.25;cursor:not-allowed;}
       .github-project-page{font-family:'Press Start 2P',monospace;font-size:.42rem;color:var(--grey);min-width:72px;text-align:center;}
+      .github-project .proj-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
       @media(min-width:921px){.github-project-carousel{grid-template-columns:repeat(3,minmax(0,1fr));}}
       @media(max-width:920px) and (min-width:641px){.github-project-carousel{grid-template-columns:repeat(2,minmax(0,1fr));}}
       @media(max-width:640px){.github-project-carousel{grid-template-columns:1fr;}}
@@ -154,49 +183,84 @@
     document.head.appendChild(style);
   }
 
+  function updateProjectStat(count) {
+    const candidates = [
+      ...document.querySelectorAll('.stat-box .stat-num, .stat-num, [data-stat="projects"], [data-stat="project-count"]')
+    ];
+
+    let target = candidates.find(el => {
+      const boxText = el.closest('.stat-box')?.textContent || el.parentElement?.textContent || '';
+      return /projects/i.test(boxText);
+    });
+
+    if (!target) {
+      const labels = [...document.querySelectorAll('.stat-box, .stat, .stat-item, .hero-stat, .stats > *')];
+      const projectBox = labels.find(box => /projects/i.test(box.textContent || ''));
+      target = projectBox?.querySelector('.stat-num, .stat-number, .number, strong, b');
+    }
+
+    if (target) {
+      target.dataset.githubProjectCount = String(count);
+      target.textContent = `${count}+`;
+    }
+
+    // Keep any explicit project-count elements synchronized as well.
+    document.querySelectorAll('[data-project-count]').forEach(el => {
+      el.textContent = `${count}+`;
+    });
+  }
+
+  async function loadLanguages(repo) {
+    try {
+      const response = await fetch(`https://api.github.com/repos/${OWNER}/${encodeURIComponent(repo.name)}/languages`, {
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store'
+      });
+      if (!response.ok) return repo;
+      const languageMap = await response.json();
+      repo.githubLanguages = Object.keys(languageMap);
+    } catch (_) {
+      repo.githubLanguages = [];
+    }
+    return repo;
+  }
+
   async function loadProjects() {
     const grid = document.querySelector('.projects-grid');
     if (!grid) return;
 
     try {
-      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&sort=pushed`, {
+      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&type=all&sort=pushed`, {
         headers: { Accept: 'application/vnd.github+json' },
         cache: 'no-store'
       });
       if (!response.ok) throw new Error(`GitHub API ${response.status}`);
       const repos = await response.json();
+
+      // The portfolio mirrors every non-private, non-fork, non-archived repository.
+      // This intentionally includes the profile repository and this portfolio repository
+      // so the visible count exactly matches GitHub's public repository count.
       const projects = repos
-        .filter(repo => !repo.private && !repo.fork && !repo.archived && !EXCLUDED_REPOS.has(repo.name))
+        .filter(repo => !repo.private && !repo.fork && !repo.archived)
         .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
 
       if (!projects.length) return;
 
-      const cardsHtml = projects.map(renderCard).join('');
-      grid.innerHTML = cardsHtml;
+      const enriched = await Promise.all(projects.map(loadLanguages));
+      grid.innerHTML = enriched.map(renderCard).join('');
       const cards = [...grid.querySelectorAll('.github-project')];
 
       addCarouselStyles();
       installCarousel(grid, cards);
+      updateProjectStat(enriched.length);
 
-      // Re-arm the existing reveal observer behavior for newly created cards.
       const revealObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) entry.target.classList.add('visible');
         });
       }, { threshold: .1, rootMargin: '0px 0px -60px 0px' });
       cards.forEach(card => revealObserver.observe(card));
-
-      const projectStat = [...document.querySelectorAll('.stat-box')]
-        .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
-      if (projectStat) {
-        const number = projectStat.querySelector('.stat-num');
-        if (number) {
-          number.dataset.githubProjectCount = String(projects.length);
-          number.textContent = `${projects.length}+`;
-        }
-      }
     } catch (error) {
-      // Keep the original hardcoded cards as a graceful offline/API-limit fallback.
       console.warn('GitHub project sync unavailable; keeping portfolio fallback projects.', error);
     }
   }
