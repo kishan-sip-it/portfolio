@@ -1,0 +1,75 @@
+name: One-time Samaaroh link fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  replace-link:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace legacy Samaaroh deployment URL
+        shell: python
+        run: |
+          from pathlib import Path
+
+          root = Path('.')
+          old_urls = (
+              'http://samaaroh.freehosting.dev/',
+              'https://samaaroh.freehosting.dev/',
+              'http://samaaroh.freehosting.dev',
+              'https://samaaroh.freehosting.dev',
+          )
+          new_url = 'https://samaaroh-uron.onrender.com/'
+          extensions = {'.html', '.js', '.md', '.css', '.txt'}
+
+          changed = []
+          for path in root.rglob('*'):
+              if not path.is_file() or '.git' in path.parts or path.suffix.lower() not in extensions:
+                  continue
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+
+              updated = text
+              for old in old_urls:
+                  updated = updated.replace(old, new_url)
+
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8')
+                  changed.append(str(path))
+
+          print('Updated:', changed)
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No legacy Samaaroh URLs found."
+            exit 0
+          fi
+
+          git commit -m "fix: update Samaaroh live deployment links"
+          git push
+
+      - name: Remove one-time workflow
+        if: success()
+        shell: bash
+        run: |
+          git rm .github/workflows/one-time-samaaroh-link-fix.yml
+          git commit -m "chore: remove one-time Samaaroh link workflow"
+          git push
