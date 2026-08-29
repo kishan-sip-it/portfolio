@@ -1,0 +1,209 @@
+(() => {
+  'use strict';
+
+  const OWNER = 'kishan-sip-it';
+  const EXCLUDED_REPOS = new Set(['portfolio', 'kishan-sip-it']);
+  const LIVE_URLS = {
+    lpfinder: 'https://lpfinder.onrender.com/',
+    kindling: 'https://kindling1.netlify.app/',
+    samaaroh_file: 'http://samaaroh.freehosting.dev/'
+  };
+
+  const TAG_CLASS = {
+    python: 'tag-python',
+    php: 'tag-php',
+    javascript: 'tag-react',
+    typescript: 'tag-typescript',
+    react: 'tag-react',
+    postgresql: 'tag-postgresql',
+    mysql: 'tag-mysql',
+    fastapi: 'tag-fastapi',
+    langgraph: 'tag-langgraph',
+    tailwind: 'tag-tailwind',
+    jwt: 'tag-jwt',
+    redux: 'tag-redux',
+    nextjs: 'tag-nextjs',
+    drizzle: 'tag-drizzle',
+    rbac: 'tag-rbac',
+    bcrypt: 'tag-bcrypt',
+    testing: 'tag-testing',
+    pypi: 'tag-pypi',
+    dsa: 'tag-dsa'
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function prettyName(name) {
+    return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function category(repo) {
+    const topic = repo.topics?.[0];
+    if (topic) return topic.replace(/[-_]+/g, ' ').toUpperCase();
+    if (repo.language) return `${repo.language} PROJECT`.toUpperCase();
+    return 'GITHUB PROJECT';
+  }
+
+  function tagline(repo) {
+    const description = (repo.description || '').trim();
+    if (description) {
+      const firstSentence = description.split(/[.!?](?:\s|$)/)[0].trim();
+      return firstSentence.length > 58 ? `${firstSentence.slice(0, 55)}...` : firstSentence;
+    }
+    return repo.language ? `${repo.language} • OPEN SOURCE` : 'OPEN SOURCE PROJECT';
+  }
+
+  function tags(repo) {
+    const values = [];
+    if (repo.language) values.push(repo.language);
+    (repo.topics || []).forEach(topic => values.push(topic));
+    if (repo.stargazers_count > 0) values.push('stars');
+    return [...new Set(values.map(v => String(v).toLowerCase()))].slice(0, 5);
+  }
+
+  function tagClass(tag) {
+    const normalized = tag.replace(/[^a-z0-9]/g, '');
+    return TAG_CLASS[normalized] || '';
+  }
+
+  function renderCard(repo, index) {
+    const liveUrl = LIVE_URLS[repo.name.toLowerCase()] || repo.homepage || '';
+    const repoTags = tags(repo);
+    const updated = repo.updated_at ? new Date(repo.updated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : '';
+    const stats = `${repo.stargazers_count || 0}★ · ${repo.forks_count || 0} forks`;
+
+    return `
+      <div class="proj-card github-project reveal" style="--proj-color:${index % 2 ? '#ff2d78' : '#a855f7'};">
+        <div class="proj-head">
+          <div class="proj-category">${escapeHtml(category(repo))}</div>
+          <div class="proj-num">#${String(index + 1).padStart(3, '0')}</div>
+        </div>
+        <div class="proj-name">${escapeHtml(prettyName(repo.name))}</div>
+        <div class="proj-tagline">${escapeHtml(tagline(repo))}</div>
+        <p class="proj-desc">${escapeHtml(repo.description || 'GitHub project with source code, documentation and ongoing development.')}</p>
+        <div class="proj-tags">
+          ${repoTags.map(tag => `<div class="proj-tag ${tagClass(tag)}">${escapeHtml(tag)}</div>`).join('')}
+        </div>
+        <div class="proj-links">
+          <a href="${escapeHtml(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="proj-link"><span class="pl-icon">🐙</span>GITHUB</a>
+          ${liveUrl ? `<a href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener noreferrer" class="proj-link live"><span class="pl-icon">🔗</span>LIVE DEMO</a>` : ''}
+        </div>
+        <div style="margin-top:.75rem;font-size:.58rem;color:var(--grey);">${escapeHtml(stats)}${updated ? ` · updated ${escapeHtml(updated)}` : ''}</div>
+      </div>`;
+  }
+
+  function installCarousel(grid, cards) {
+    const existing = grid.parentElement.querySelector('.github-project-nav');
+    if (existing) existing.remove();
+    if (cards.length <= 6) {
+      grid.classList.remove('github-project-carousel');
+      return;
+    }
+
+    grid.classList.add('github-project-carousel');
+    const nav = document.createElement('div');
+    nav.className = 'github-project-nav';
+    nav.innerHTML = `
+      <button type="button" class="github-project-arrow" data-dir="-1" aria-label="Previous projects">&lt;</button>
+      <span class="github-project-page">1 / ${Math.ceil(cards.length / 6)}</span>
+      <button type="button" class="github-project-arrow" data-dir="1" aria-label="Next projects">&gt;</button>`;
+    grid.parentElement.insertBefore(nav, grid);
+
+    let page = 0;
+    const pageCount = Math.ceil(cards.length / 6);
+    const renderPage = () => {
+      cards.forEach((card, i) => {
+        const visible = i >= page * 6 && i < (page + 1) * 6;
+        card.style.display = visible ? '' : 'none';
+      });
+      nav.querySelector('.github-project-page').textContent = `${page + 1} / ${pageCount}`;
+      nav.querySelector('[data-dir="-1"]').disabled = page === 0;
+      nav.querySelector('[data-dir="1"]').disabled = page === pageCount - 1;
+    };
+    nav.addEventListener('click', event => {
+      const button = event.target.closest('.github-project-arrow');
+      if (!button) return;
+      page = Math.max(0, Math.min(pageCount - 1, page + Number(button.dataset.dir)));
+      renderPage();
+      grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    renderPage();
+  }
+
+  function addCarouselStyles() {
+    if (document.getElementById('github-project-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'github-project-styles';
+    style.textContent = `
+      .github-project-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin:-1rem 0 1.5rem;}
+      .github-project-arrow{font-family:'Press Start 2P',monospace;font-size:.75rem;line-height:1;border:1px solid var(--green);color:var(--green);background:#0d0d0d;padding:.65rem .8rem;cursor:pointer;transition:all .2s;}
+      .github-project-arrow:hover:not(:disabled){background:var(--green);color:var(--black);box-shadow:0 0 14px rgba(57,255,133,.25);}
+      .github-project-arrow:disabled{opacity:.25;cursor:not-allowed;}
+      .github-project-page{font-family:'Press Start 2P',monospace;font-size:.42rem;color:var(--grey);min-width:72px;text-align:center;}
+      @media(min-width:921px){.github-project-carousel{grid-template-columns:repeat(3,minmax(0,1fr));}}
+      @media(max-width:920px) and (min-width:641px){.github-project-carousel{grid-template-columns:repeat(2,minmax(0,1fr));}}
+      @media(max-width:640px){.github-project-carousel{grid-template-columns:1fr;}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  async function loadProjects() {
+    const grid = document.querySelector('.projects-grid');
+    if (!grid) return;
+
+    try {
+      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&sort=pushed`, {
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store'
+      });
+      if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+      const repos = await response.json();
+      const projects = repos
+        .filter(repo => !repo.private && !repo.fork && !repo.archived && !EXCLUDED_REPOS.has(repo.name))
+        .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+
+      if (!projects.length) return;
+
+      const cardsHtml = projects.map(renderCard).join('');
+      grid.innerHTML = cardsHtml;
+      const cards = [...grid.querySelectorAll('.github-project')];
+
+      addCarouselStyles();
+      installCarousel(grid, cards);
+
+      // Re-arm the existing reveal observer behavior for newly created cards.
+      const revealObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { threshold: .1, rootMargin: '0px 0px -60px 0px' });
+      cards.forEach(card => revealObserver.observe(card));
+
+      const projectStat = [...document.querySelectorAll('.stat-box')]
+        .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
+      if (projectStat) {
+        const number = projectStat.querySelector('.stat-num');
+        if (number) {
+          number.dataset.githubProjectCount = String(projects.length);
+          number.textContent = `${projects.length}+`;
+        }
+      }
+    } catch (error) {
+      // Keep the original hardcoded cards as a graceful offline/API-limit fallback.
+      console.warn('GitHub project sync unavailable; keeping portfolio fallback projects.', error);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadProjects, { once: true });
+  } else {
+    loadProjects();
+  }
+})();
