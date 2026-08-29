@@ -2,7 +2,10 @@
   'use strict';
 
   const OWNER = 'kishan-sip-it';
-  const EXCLUDED_REPOS = new Set(['portfolio', 'kishan-sip-it']);
+  const PROFILE_REPO = 'kishan-sip-it';
+  const PORTFOLIO_REPO = 'portfolio';
+
+  // Known deployed project URLs. GitHub remains the source of truth for repo data.
   const LIVE_URLS = {
     lpfinder: 'https://lpfinder.onrender.com/',
     kindling: 'https://kindling1.netlify.app/',
@@ -16,7 +19,9 @@
     mysql: 'tag-mysql', fastapi: 'tag-fastapi', langgraph: 'tag-langgraph',
     tailwind: 'tag-tailwind', jwt: 'tag-jwt', redux: 'tag-redux',
     nextjs: 'tag-nextjs', drizzle: 'tag-drizzle', rbac: 'tag-rbac',
-    bcrypt: 'tag-bcrypt', testing: 'tag-testing', pypi: 'tag-pypi', dsa: 'tag-dsa'
+    bcrypt: 'tag-bcrypt', testing: 'tag-testing', pypi: 'tag-pypi', dsa: 'tag-dsa',
+    html: 'tag-react', css: 'tag-react', sql: 'tag-postgresql',
+    'c#': 'tag-typescript', java: 'tag-typescript', visualbasic: 'tag-typescript'
   };
 
   function escapeHtml(value) {
@@ -42,24 +47,19 @@
       const firstSentence = description.split(/[.!?](?:\s|$)/)[0].trim();
       return firstSentence.length > 58 ? `${firstSentence.slice(0, 55)}...` : firstSentence;
     }
-    return repo.language ? `${repo.language} • OPEN SOURCE` : 'OPEN SOURCE PROJECT';
-  }
-
-  function tags(repo) {
-    const values = [];
-    if (repo.language) values.push(repo.language);
-    (repo.topics || []).forEach(topic => values.push(topic));
-    if (repo.stargazers_count > 0) values.push('stars');
-    return [...new Set(values.map(v => String(v).toLowerCase()))].slice(0, 8);
+    return repo.language ? `${repo.language} • GITHUB PROJECT` : 'GITHUB PROJECT';
   }
 
   function tagClass(tag) {
-    return TAG_CLASS[tag.replace(/[^a-z0-9]/g, '')] || '';
+    const normalized = tag.replace(/[^a-z0-9#]/gi, '').toLowerCase();
+    return TAG_CLASS[normalized] || '';
   }
 
   function renderCard(repo, index) {
     const liveUrl = LIVE_URLS[repo.name.toLowerCase()] || repo.homepage || '';
-    const repoTags = tags(repo);
+    const repoLanguages = repo.githubLanguages || [];
+    const repoTopics = (repo.topics || []).map(topic => String(topic).toLowerCase());
+    const repoTags = [...new Set([...repoLanguages, ...repoTopics])].slice(0, 8);
     const updated = repo.updated_at
       ? new Date(repo.updated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })
       : '';
@@ -85,12 +85,6 @@
       </div>`;
   }
 
-  /*
-   * The original inline stats animation in index.html still starts with the
-   * old fallback value (4+). This sync deliberately wins that race: it writes
-   * the GitHub count immediately and keeps it locked while the old animation
-   * finishes, so the displayed value cannot jump back to 4+.
-   */
   function syncProjectStatCount(count) {
     const stat = [...document.querySelectorAll('.stat-box')]
       .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
@@ -121,6 +115,7 @@
   function installCarousel(grid, cards) {
     const existing = grid.parentElement.querySelector('.github-project-nav');
     if (existing) existing.remove();
+
     if (cards.length <= 6) {
       grid.classList.remove('github-project-carousel');
       return;
@@ -153,6 +148,7 @@
       renderPage();
       grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+
     renderPage();
   }
 
@@ -173,6 +169,25 @@
     document.head.appendChild(style);
   }
 
+  async function fetchLanguages(repo) {
+    if (!repo.languages_url) return repo.language ? [repo.language] : [];
+
+    try {
+      const response = await fetch(repo.languages_url, {
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store'
+      });
+      if (!response.ok) return repo.language ? [repo.language] : [];
+
+      const languageMap = await response.json();
+      return Object.entries(languageMap)
+        .sort(([, a], [, b]) => Number(b) - Number(a))
+        .map(([language]) => language);
+    } catch {
+      return repo.language ? [repo.language] : [];
+    }
+  }
+
   async function loadProjects() {
     const grid = document.querySelector('.projects-grid');
     if (!grid) return;
@@ -185,14 +200,21 @@
       if (!response.ok) throw new Error(`GitHub API ${response.status}`);
 
       const repos = await response.json();
-      const projects = repos
-        .filter(repo => !repo.private && !repo.fork && !repo.archived && !EXCLUDED_REPOS.has(repo.name))
+      const publicRepos = repos.filter(repo => !repo.private && !repo.archived && repo.name !== PROFILE_REPO);
+
+      // The counter represents every public repository except the GitHub profile repo.
+      // The portfolio repo itself is counted, but is not displayed as its own project card.
+      syncProjectStatCount(publicRepos.length);
+
+      const projects = publicRepos
+        .filter(repo => !repo.fork && repo.name !== PORTFOLIO_REPO)
         .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
 
       if (!projects.length) return;
 
-      /* This is the single source of truth for the visible project counter. */
-      syncProjectStatCount(projects.length);
+      await Promise.all(projects.map(async repo => {
+        repo.githubLanguages = (await fetchLanguages(repo)).slice(0, 5);
+      }));
 
       grid.innerHTML = projects.map(renderCard).join('');
       const cards = [...grid.querySelectorAll('.github-project')];
