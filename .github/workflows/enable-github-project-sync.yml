@@ -1,0 +1,49 @@
+name: Enable GitHub project sync
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  enable-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout portfolio
+        uses: actions/checkout@v4
+
+      - name: Inject GitHub project loader
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          marker = '<script src="./github-projects.js"></script>'
+
+          if marker not in text:
+              needle = '</body>'
+              if needle not in text:
+                  raise SystemExit('Could not find </body> in index.html')
+              text = text.replace(needle, f'<!-- GitHub project sync -->\\n{marker}\\n{needle}', 1)
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit loader injection when needed
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "GitHub project loader already enabled."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore: enable dynamic GitHub project sync [skip ci]"
+          git push
