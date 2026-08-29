@@ -114,10 +114,10 @@
   function replaceLegacySamaarohLinks() {
     const current = 'https://samaaroh-uron.onrender.com/';
     const legacy = [
-      'https://samaaroh-uron.onrender.com/',
-      'https://samaaroh-uron.onrender.com/',
-      'https://samaaroh-uron.onrender.com/',
-      'https://samaaroh-uron.onrender.com/'
+      'http://samaaroh.freehosting.dev/',
+      'https://samaaroh.freehosting.dev/',
+      'http://samaaroh.freehosting.dev',
+      'https://samaaroh.freehosting.dev'
     ];
 
     document.querySelectorAll('a[href]').forEach(anchor => {
