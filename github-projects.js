@@ -2,7 +2,6 @@
   'use strict';
 
   const OWNER = 'kishan-sip-it';
-  const PROFILE_REPO = 'kishan-sip-it';
   const PORTFOLIO_REPO = 'portfolio';
 
   // Known deployed project URLs. GitHub remains the source of truth for repo data.
@@ -35,6 +34,8 @@
   }
 
   function category(repo) {
+    if (repo.name === OWNER) return 'GITHUB PROFILE';
+    if (repo.name === PORTFOLIO_REPO) return 'PORTFOLIO';
     const topic = repo.topics?.[0];
     if (topic) return topic.replace(/[-_]+/g, ' ').toUpperCase();
     if (repo.language) return `${repo.language} PROJECT`.toUpperCase();
@@ -73,7 +74,7 @@
         </div>
         <div class="proj-name">${escapeHtml(prettyName(repo.name))}</div>
         <div class="proj-tagline">${escapeHtml(tagline(repo))}</div>
-        <p class="proj-desc">${escapeHtml(repo.description || 'GitHub project with source code, documentation and ongoing development.')}</p>
+        <p class="proj-desc">${escapeHtml(repo.description || 'Public GitHub repository with source code and ongoing development.')}</p>
         <div class="proj-tags">
           ${repoTags.map(tag => `<div class="proj-tag ${tagClass(tag)}">${escapeHtml(tag)}</div>`).join('')}
         </div>
@@ -86,6 +87,12 @@
   }
 
   function syncProjectStatCount(count) {
+    // The old inline stat observer animated the hard-coded 4+ value.
+    // Disconnect it so it can never overwrite the GitHub-derived count.
+    try {
+      if (typeof statsObs !== 'undefined') statsObs.disconnect();
+    } catch (_) {}
+
     const stat = [...document.querySelectorAll('.stat-box')]
       .find(box => box.querySelector('.stat-label')?.textContent.trim().toUpperCase() === 'PROJECTS');
     if (!stat) return;
@@ -94,22 +101,7 @@
     if (!number) return;
 
     number.dataset.githubProjectCount = String(count);
-    const expected = `${count}+`;
-    const apply = () => {
-      if (number.textContent !== expected) number.textContent = expected;
-    };
-
-    apply();
-    if (number._githubCountTimer) clearInterval(number._githubCountTimer);
-    const started = Date.now();
-    number._githubCountTimer = setInterval(() => {
-      apply();
-      if (Date.now() - started >= 2500) {
-        clearInterval(number._githubCountTimer);
-        number._githubCountTimer = null;
-        apply();
-      }
-    }, 40);
+    number.textContent = `${count}+`;
   }
 
   function installCarousel(grid, cards) {
@@ -169,23 +161,13 @@
     document.head.appendChild(style);
   }
 
-  async function fetchLanguages(repo) {
-    if (!repo.languages_url) return repo.language ? [repo.language] : [];
-
-    try {
-      const response = await fetch(repo.languages_url, {
-        headers: { Accept: 'application/vnd.github+json' },
-        cache: 'no-store'
-      });
-      if (!response.ok) return repo.language ? [repo.language] : [];
-
-      const languageMap = await response.json();
-      return Object.entries(languageMap)
-        .sort(([, a], [, b]) => Number(b) - Number(a))
-        .map(([language]) => language);
-    } catch {
-      return repo.language ? [repo.language] : [];
-    }
+  async function fetchLiveFallback() {
+    const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&sort=pushed&type=owner`, {
+      headers: { Accept: 'application/vnd.github+json' },
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+    return response.json();
   }
 
   async function loadProjects() {
@@ -193,28 +175,21 @@
     if (!grid) return;
 
     try {
-      const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&sort=pushed`, {
-        headers: { Accept: 'application/vnd.github+json' },
-        cache: 'no-store'
-      });
-      if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+      // Netlify generates this data during every build from GitHub's public API.
+      // Runtime API fallback is retained for local development.
+      let repos = Array.isArray(window.__GITHUB_PROJECTS__) ? window.__GITHUB_PROJECTS__ : null;
+      if (!repos) repos = await fetchLiveFallback();
 
-      const repos = await response.json();
-      const publicRepos = repos.filter(repo => !repo.private && !repo.archived && repo.name !== PROFILE_REPO);
-
-      // The counter represents every public repository except the GitHub profile repo.
-      // The portfolio repo itself is counted, but is not displayed as its own project card.
+      const publicRepos = repos.filter(repo => !repo.private && !repo.archived);
       syncProjectStatCount(publicRepos.length);
 
+      // Show every public repository. This intentionally keeps the project
+      // section count aligned with the public-repository counter.
       const projects = publicRepos
-        .filter(repo => !repo.fork && repo.name !== PORTFOLIO_REPO)
-        .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+        .slice()
+        .sort((a, b) => new Date(b.pushed_at || b.updated_at) - new Date(a.pushed_at || a.updated_at));
 
       if (!projects.length) return;
-
-      await Promise.all(projects.map(async repo => {
-        repo.githubLanguages = (await fetchLanguages(repo)).slice(0, 5);
-      }));
 
       grid.innerHTML = projects.map(renderCard).join('');
       const cards = [...grid.querySelectorAll('.github-project')];
